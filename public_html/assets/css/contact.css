@@ -1,0 +1,939 @@
+/* ===========================================================================
+   Majori Manor — contact.css
+
+   CONTACT's own layer, over home.css and estate.css. Loaded only on /contact
+   (templates/partials/head.php).
+
+   WHAT IS IN HERE IS ONLY WHAT NO PAGE BEFORE IT NEEDED:
+
+     1. the grounds this page uses, and the argument for not adding one
+     2. the hero — the title's own measure, and the scrim over a lit facade
+     3. the address, set as display type
+     4. the map's scene
+     5. the map itself, on a film ground
+     6. the enquiry form, on a film ground
+     7. narrow — the real mobile pass
+     8. motion
+
+   THE ACTS ARE estate.css §1's AND THIS PAGE ADDS NONE, which is a first: THE
+   CLUB, PADEL, EVENTS, RESIDENCES and AFTER DARK each brought a ground of their
+   own. This one uses three of the five that already exist — estate, heritage
+   and park — and the reason it needs no sixth is that it is not descending
+   anywhere. See §1.
+
+   IT IS THE ONLY FILM PAGE WITH A FORM ON IT, and §6 is therefore the only
+   section in any page stylesheet that reaches into a component main.css owns.
+   The alternative was editing main.css, which asset_url() cache-busts on
+   filemtime and would re-version the stylesheet in the markup of all eleven
+   pages for a rule ten of them cannot use.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. The grounds
+   ---------------------------------------------------------------------------
+   THE BRIEF ASKED FOR TWO CREAM SCREENS AND THIS PAGE HAS NONE. That is the one
+   place it departs from the brief's palette note, it is deliberate, and the
+   argument is the brief's own first instruction.
+
+   The brief lists a rhythm — dark hero, warm cream address and map, deep green
+   for the human scene, warm cream form, near-black close — and it lists it as a
+   suggestion. It also says, twice and not as a suggestion, that CONTACT must
+   continue the visual universe of the seven approved pages and must not invent
+   a new UI language. Those seven pages are one continuous dark film: a cream
+   GROUND exists nowhere in it, the grain in home.css §3 is mixed soft-light
+   against near-black, the gold in home.css §1 is measured at 8.6:1 against
+   near-black and is forbidden on cream by main.css §2, and every component this
+   page draws reads --ink, --ink-muted and --hairline, all three of which are
+   built for a dark ground. A cream band dropped into the middle of that is not
+   a lighter section, it is a second design, on the one page whose whole job is
+   to look like it belongs to the first.
+
+   SO THE WARMTH IS DELIVERED AS A TEMPERATURE RATHER THAN AS AN INVERSION.
+   --mm-heritage is estate.css's mahogany-over-black, it is visibly warmer than
+   the near-black on either side of it, and the film's warm cream — the
+   --mm-cream-100 the brief's palette actually names — is the ink standing on
+   it. The two screens the brief wanted on paper are the two screens on
+   mahogany, and they are the only two: the address, and the form. Everything
+   between them is the estate.
+
+   WHAT THE PAGE MOVES THROUGH, AND IT ALTERNATES RATHER THAN DESCENDS:
+
+     hero    estate     #0B0A08   near-black
+     01 02   heritage   #17110C   mahogany — the address and the map
+     03      estate     #0B0A08   near-black — the gate
+     04      park       #0A1310   the seal's green — the desk
+     05      heritage   #17110C   mahogany — the form
+     06      estate     #0B0A08   near-black — the last screen
+
+   ALTERNATING IS THE ONE STRUCTURAL RULE THIS PAGE BREAKS AND IT BREAKS IT ON
+   PURPOSE. ARCHITECTURE §3.4 settled that a film page moves monotonically —
+   never back toward a lighter ground — because each of the six story pages is a
+   journey inward and a page that goes back up reads as stripes rather than as a
+   descent. This page is not a journey. It is a threshold with two registers,
+   and the two screens where a reader is asked to write something down are the
+   same colour on purpose. It is the only thing on the page a reader is meant to
+   notice without being told, and it only works because it happens twice.
+
+   NOTHING IS DECLARED IN THIS SECTION, which is the proof that it added no
+   ground: estate.css §1 already draws all three, and the content file names
+   them.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   2. The hero
+   ---------------------------------------------------------------------------
+   2a · THE TITLE IS FIVE WORDS AND IT IS THE APPROVED PAGE'S OWN LINE.
+
+   home.css sizes the hero title at clamp(2.6rem, 9.2vw, 8.25rem), measured for
+   "MAJORI MANOR" and "THE ESTATE" — two words that break once. RESIDENCES took
+   it to clamp(2.1rem, 7.6vw, 6.6rem) for four words that break twice, and
+   AFTER DARK to clamp(1.9rem, 7.6vw, 4.3rem) for six.
+
+   "HOW TO REACH MAJORI MANOR" is twenty-two characters and wants to set as a
+   couplet: HOW TO REACH over MAJORI MANOR. It is a label rather than a
+   sentence — the one line on this page that says plainly what the page is for —
+   and it is sized so that the break falls in that one place at every width.
+
+   THE MEASURE IS THE SWITCH AND NOT A SECOND TYPE SIZE, which is AFTER DARK's
+   own finding and is kept: max-width is set in em on the title's own type, so
+   it is the same fraction of the line at every width. 8.6em holds "HOW TO
+   REACH" and puts "MAJORI MANOR" under it, which is the composition, and it
+   does that at 375px and at 1920px without the ladder changing.
+
+   IT IS SMALLER THAN THE MAIN PAGE'S AND LARGER THAN AFTER DARK'S because the
+   couplet is longer than "MAJORI MANOR" and shorter than "THE HOURS THE ESTATE
+   KEEPS FOR ITSELF". The sentence was not shortened to fit the type; the type
+   was sized to fit the sentence.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__title {
+    font-size: clamp(2.15rem, 8vw, 5.4rem);
+    max-width: 8.6em;
+    margin-inline: auto;
+}
+
+
+/* ---------------------------------------------------------------------------
+   2b · The scrim, over a lit facade
+   ---------------------------------------------------------------------------
+   estate.css §1b hangs a soft dark band behind the hero copy because THE
+   ESTATE's first screen is white render in daylight; club.css §1 takes it down
+   because THE CLUB's is the same house at night; events.css §1 shapes it into
+   the middle for a lit dome; residences.css §2b weights it to the foot for a
+   dark landing; after-dark.css §2b weights it low and hard for the garden front
+   with its lamps on.
+
+   THIS HERO IS THE SAME PROBLEM AS AFTER DARK'S AND ONE STOP FURTHER ON.
+   It is the real Majori Manor, which is white render, and at this hour the
+   bright things in the frame are eleven lit windows, a lit doorway and four
+   columns washed from below. Frame 0 measures 29 mean AFTER the encode is
+   graded (eq=gamma=0.80 — see tools/photos/build_contact_media.py), which puts
+   it between RESIDENCES' hero at 29 and AFTER DARK's at 31.
+
+   THE COPY STANDS ON THE LAWN AND THE LAWN IS THE DARKEST PART OF THE PICTURE,
+   so the band is weighted low. The top fifth is left almost alone — that is the
+   sky and the roof, there is nothing to protect there, and darkening it would
+   take the one thing the shot is about, which is a house with its lights on
+   under a blue sky.
+
+   IT IS A LAYER, NOT A REPLACEMENT. Restating home.css's whole gradient stack
+   with one more entry would mean the two files could drift the next time that
+   stack is touched. This is a pseudo-element over it, so home.css stays the
+   only place the hero's scrim is described.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom,
+        transparent 6%,
+        color-mix(in srgb, var(--mm-black-900) 22%, transparent) 26%,
+        color-mix(in srgb, var(--mm-black-900) 46%, transparent) 52%,
+        color-mix(in srgb, var(--mm-black-900) 62%, transparent) 78%,
+        color-mix(in srgb, var(--mm-black-900) 58%, transparent) 100%);
+}
+
+/*
+   NARROWER SCREENS NEED MORE OF IT AND THE REASON IS THE CROP RATHER THAN THE
+   SCREEN. A 16:9 film in a portrait window is covered to the HEIGHT, so the
+   whole height is shown and only the sides are cut — which means the lit
+   windows and the lit portico keep their vertical position exactly, and the
+   copy crosses them. No object-position can separate the two: the second value
+   does nothing at this aspect.
+
+   So the middle of the gradient comes up and the ends do not. The house keeps
+   its lights and the type gets a ground.
+*/
+@media (max-width: 899px) {
+    .c-film-hero__scrim::after {
+        background-image: linear-gradient(to bottom,
+            transparent 4%,
+            color-mix(in srgb, var(--mm-black-900) 30%, transparent) 22%,
+            color-mix(in srgb, var(--mm-black-900) 62%, transparent) 44%,
+            color-mix(in srgb, var(--mm-black-900) 70%, transparent) 62%,
+            color-mix(in srgb, var(--mm-black-900) 64%, transparent) 82%,
+            color-mix(in srgb, var(--mm-black-900) 54%, transparent) 100%);
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   2c · The eyebrow, measured
+   ---------------------------------------------------------------------------
+   "CONTACT" is set in gold at about 10.6px on a phone and its letters cross the
+   lit first floor of the house. A scrim deep enough to clear 4.5:1 over a lit
+   window is not a scrim any more, it is switching the house off — which is the
+   arithmetic PADEL found first (padel.css §3a) and EVENTS, RESIDENCES and AFTER
+   DARK each repeated.
+
+   THE ANSWER IS THEIRS, unchanged: a soft ellipse behind the line itself, at
+   most 30rem wide against a facade that is about 1500px wide in a portrait
+   window, so nothing about the picture changes and the line clears by a margin
+   rather than by a hair's breadth. It is applied at every width and is
+   invisible at most of them — on a desktop this eyebrow stands over the dark
+   lawn already.
+
+   z-index: -1 INSIDE isolation: isolate is the whole trick. The wash paints
+   behind the type and in front of the film; isolate makes the eyebrow its own
+   stacking context, so the negative index lands at the bottom of THAT context.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__eyebrow {
+    position: relative;
+    isolation: isolate;
+}
+
+.c-film-hero__eyebrow::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    top: 50%;
+    inline-size: min(30rem, 88vw);
+    block-size: 6rem;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background-image: radial-gradient(62% 56% at 50% 50%,
+        color-mix(in srgb, var(--mm-black-900) 90%, transparent) 0%,
+        color-mix(in srgb, var(--mm-black-900) 74%, transparent) 46%,
+        color-mix(in srgb, var(--mm-black-900) 38%, transparent) 74%,
+        transparent 92%);
+}
+
+
+/* ===========================================================================
+   3. The address
+   ---------------------------------------------------------------------------
+   THE STREET AND THE NUMBER ARE THE HEADING, AT CHAPTER SIZE. This is the only
+   screen on the site where a postal address is display type, and it is display
+   type because on this page it is the answer rather than a detail: a reader who
+   presses the hero's cue lands here and can stop.
+
+   THE LAYOUT IS film-chapter--split's, AND IT IS THE SAME GRID ON PURPOSE. Two
+   equal columns above 900px with the same gap the film uses between a lede and
+   its prose, so the address and the sentence beside it sit exactly where a
+   reader who has been through the other seven pages expects a lede and a
+   paragraph to sit. It is not a new layout; it is the film's layout with an
+   address in the left half of it.
+
+   THE <address> ELEMENT IS UNSTYLED ITALIC BY DEFAULT and that is undone here.
+   The meaning is wanted — it is what a screen reader announces as contact
+   details, and it is why the heading is inside it (see the component) — and the
+   browser's rendering of it is not.
+   =========================================================================== */
+
+.c-contact-place {
+    max-width: var(--shell);
+    margin: var(--scene) auto;
+    padding-inline: var(--gutter);
+}
+
+.c-contact-place__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5.5rem);
+    align-items: start;
+}
+
+.c-contact-place__address {
+    display: block;
+    font-style: normal;   /* the element's meaning, not the browser's italics */
+}
+
+/* The scene number, exactly as film-band and film-chapter set theirs: its own
+   element, never read as part of the eyebrow. */
+.c-contact-place__index {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin-block-end: 1.1rem;
+}
+
+.c-contact-place__eyebrow {
+    display: block;
+    font-size: clamp(0.625rem, 0.72vw, 0.7rem);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+}
+
+/*
+   The street, at the size film-chapter gives a lede. 14ch rather than the
+   lede's 16ch because this line is a proper noun that must not break inside
+   itself: "Konkordijas" is eleven characters and the measure has to hold it
+   with the number beside it or under it, never split.
+*/
+.c-contact-place__street {
+    margin: 0.9rem 0 0;
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    max-width: 14ch;
+    color: var(--ink);
+    text-wrap: balance;
+}
+
+.c-contact-place__lines {
+    display: block;
+    margin-block-start: 0.85rem;
+    font-size: clamp(0.9375rem, 1.05vw, 1.0625rem);
+    line-height: 1.7;
+    color: var(--ink-muted);
+}
+
+/*
+   THE MAILBOX IS THE SECOND FACT ON THE PAGE AND IT IS SET APART BY A RULE
+   RATHER THAN BY A BOX. A hairline above it, the film's own, and the address
+   above it in cream: two things, both quiet, and no card around either.
+*/
+.c-contact-place__mailbox {
+    display: block;
+    margin-block-start: clamp(1.75rem, 3vw, 2.5rem);
+    padding-block-start: clamp(1.25rem, 2.2vw, 1.75rem);
+    border-block-start: 1px solid var(--hairline);
+}
+
+.c-contact-place__email {
+    display: inline-block;
+    margin-block-start: 0.7rem;
+    font-size: clamp(1rem, 1.35vw, 1.2rem);
+    color: var(--gold-bright);
+    text-decoration: none;
+    border-block-end: 1px solid var(--hairline-gold);
+    padding-block-end: 0.2rem;
+    transition: color var(--calm) var(--ease),
+                border-color var(--calm) var(--ease);
+}
+
+.c-contact-place__email:hover,
+.c-contact-place__email:focus-visible {
+    color: var(--ink);
+    border-block-end-color: var(--gold-bright);
+}
+
+.c-contact-place__body {
+    display: grid;
+    gap: 1.35rem;
+    max-width: var(--text);
+    /* The prose starts level with the street rather than with the eyebrow: the
+       number and the eyebrow above it are a label, and a paragraph aligned to a
+       label reads as a caption for it. */
+    padding-block-start: clamp(2.5rem, 4.5vw, 4rem);
+}
+
+.c-contact-place__body p {
+    margin: 0;
+    font-size: clamp(0.9375rem, 1.05vw, 1.0625rem);
+    line-height: 1.78;
+    color: var(--ink-muted);
+}
+
+
+/* ===========================================================================
+   3b. The gate, and the one band on this page that is a bright photograph
+   ---------------------------------------------------------------------------
+   THE OTHER TWO PICTURES ON THIS PAGE ARE DARK AND THIS ONE IS NOT. The hero is
+   graded to 29 mean and the desk render measures 20; the gate is a summer
+   afternoon, graded to 47, and the right two thirds of it are white render in
+   low sun. home.css's 'wide' scrim is a light one — transparent to 34% black
+   across the bottom half — because it was written for PADEL's courts and the
+   Main Page's park, neither of which has a white wall in it. Cream display type
+   laid across this frame at that strength measures under 2:1 on the render.
+
+   TWO THINGS FIX IT AND NEITHER OF THEM IS A HEAVIER WASH OVER THE WHOLE
+   PICTURE.
+
+   THE FIRST IS THE MEASURE. The title is held to 13ch, which sets it in two
+   lines over the left third of the frame — the gate pier, the open timber gate
+   and the trees behind them, which is the darkest quarter of the photograph and
+   also the part of it the sentence is about. A line that runs the full width of
+   a 21:9 band has to cross whatever the photograph happens to have at the far
+   end of it; a line held to a third of it can be put somewhere.
+
+   THE SECOND IS A GRADIENT THAT LEANS RATHER THAN COVERS. It is darkest at the
+   bottom left, where the type is, and it lets go before it reaches the house.
+   The band still reads as a photograph of a white building in the sun, which is
+   the one thing this frame is for: it is the picture a reader is meant to
+   recognise from the street.
+
+   THE TYPE COMES DOWN A SIZE AS WELL. home.css sets a band title at up to
+   5.75rem; this page takes it to 3.6, which is nearer a chapter heading than a
+   headline. The brief asks for CONTACT to be calmer than the six story pages
+   and this is the one screen where that is a measurable difference rather than
+   an adjective.
+   =========================================================================== */
+
+.c-film-band--wide .c-film-band__title {
+    font-size: clamp(1.75rem, 4.4vw, 3.6rem);
+    max-width: 13ch;
+}
+
+.c-film-band--wide .c-film-band__scrim {
+    background:
+        linear-gradient(to top right,
+            color-mix(in srgb, var(--mm-black-900) 93%, transparent) 0%,
+            color-mix(in srgb, var(--mm-black-900) 78%, transparent) 26%,
+            color-mix(in srgb, var(--mm-black-900) 30%, transparent) 56%,
+            transparent 78%),
+        linear-gradient(to bottom,
+            color-mix(in srgb, var(--mm-black-900) 24%, transparent) 0%,
+            transparent 26%,
+            transparent 58%,
+            color-mix(in srgb, var(--mm-black-900) 46%, transparent) 100%);
+}
+
+/*
+   THE SCENE NUMBER IS THE ONE LINE ON THIS BAND THAT THE WASH ALONE DOES NOT
+   CARRY, and the measurement is why it is here rather than a heavier wash.
+
+   --ink-faint is the film's own colour for a scene number and it clears on
+   every approved page: /padel measures 6.35, /events 5.23, /after-dark 5.42.
+   On this band it reached 3.21 against the lit top of the gate pier, because
+   this is the only band on the site whose photograph is a summer afternoon.
+   Deepening the wash far enough to fix a 10.6px grey line would have taken the
+   sun off the pier, which is the thing the frame is of.
+
+   So the number takes --ink-muted, which is the same grey one step up and is
+   what the film already uses for body prose. It measures 5.0 and nothing in the
+   picture moved.
+
+   IT APPLIES TO BOTH BANDS AND NOT ONLY TO THE GATE, because the desk has the
+   same problem for the opposite reason: it is a dark render with one very
+   bright object in it — a lit lamp shade and a vase of pale flowers — and on a
+   phone the crop puts them behind exactly the corner the number stands in.
+   Measured at 390 before this rule: 2.12. One colour, both bands, and no
+   picture darkened to buy it.
+*/
+.c-film-band__index {
+    color: var(--ink-muted);
+}
+
+
+/* ===========================================================================
+   4. The map's scene
+   ---------------------------------------------------------------------------
+   ONE SENTENCE ABOVE THE FRAME AND NOTHING BELOW IT BUT THE MAP'S OWN LINE.
+   The sentence is set at lede size and centred against the shell, because this
+   is the one screen on the page whose subject is wider than a column.
+
+   IT SITS TIGHT UNDER THE ADDRESS AND NOT A FULL SCENE AWAY. --scene-tight
+   rather than --scene above it: 01 and 02 are one thought — here is the
+   address, and here is where that address is — and a full scene of air between
+   them would make the map read as a new subject.
+   =========================================================================== */
+
+.c-contact-map {
+    max-width: var(--shell);
+    margin: var(--scene-tight) auto var(--scene);
+    padding-inline: var(--gutter);
+}
+
+.c-contact-map__head {
+    max-width: 46rem;
+    margin-block-end: clamp(1.75rem, 3.2vw, 2.75rem);
+}
+
+.c-contact-map__index {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin-block-end: 1.1rem;
+}
+
+.c-contact-map__eyebrow {
+    margin: 0;
+    font-size: clamp(0.625rem, 0.72vw, 0.7rem);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+}
+
+.c-contact-map__lede {
+    margin: 0.9rem 0 0;
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    text-wrap: pretty;
+}
+
+
+/* ===========================================================================
+   5. The map, on a film ground
+   ---------------------------------------------------------------------------
+   THE COMPONENT IS UNTOUCHED AND SO IS ITS BEHAVIOUR. components/map.php still
+   prints the address into the frame, still carries the coordinates and the
+   geo: hand-off under it, still credits CARTO and OpenStreetMap, and main.js
+   still holds Leaflet and the tiles behind an IntersectionObserver so a reader
+   who does not scroll here talks to no third party at all. The basemap was
+   already CARTO's dark_all and the pin was already a gold divIcon; neither is a
+   change this page made.
+
+   WHAT CHANGES IS THE FRAME, AND IT IS ONE PROPERTY AND ONE RATIO.
+
+   main.css hands .c-map the page's own --rule under the name --map-rule, and on
+   the approved cream page that was --cream-deep: a pale hairline round a dark
+   plate, which reads as a figure on paper. On a near-black page the same
+   arrangement is a cream-ish hairline round a near-black plate, which reads as
+   a box drawn on the page. So the rule becomes the film's own gold hairline —
+   the same --hairline-gold the mailbox above it uses — and the map is framed
+   the way everything else on this page is edged.
+
+   THE RATIO GOES FROM 3:2 TO 21:9 ON A WIDE SCREEN. The component's default is
+   right for a column; held to the full shell it would be 1200 x 800, which is
+   most of a screen of basemap. A letterbox is the shape a map wants when it is
+   as wide as the page, and it is the film's own widest ratio.
+   =========================================================================== */
+
+.c-contact-map .c-map {
+    --map-rule: var(--hairline-gold);
+}
+
+@media (min-width: 900px) {
+    .c-contact-map .c-map__frame {
+        aspect-ratio: 21 / 9;
+    }
+}
+
+/*
+   THE LINE UNDER THE FRAME IS THE FILM'S SMALL TYPE. main.css sets it in
+   --fs-sm and the page's own ink; here it is the caption size every band on
+   this site uses, so the hand-off link, the coordinates and the credit sit at
+   the same weight as "The gate, the drive, and the house behind it" two screens
+   down.
+
+   THE LINK KEEPS ITS UNDERLINE. It is the one control in this line — it hands
+   the coordinates to whatever the reader uses for maps — and small gold type
+   with no underline in a row of small grey type is not a link, it is a colour.
+*/
+.c-contact-map .c-map__note {
+    margin-block-start: clamp(0.9rem, 1.6vw, 1.25rem);
+    font-size: 0.6875rem;
+    letter-spacing: 0.09em;
+    color: var(--ink-faint);
+}
+
+.c-contact-map .c-map__open {
+    color: var(--gold-bright);
+    text-decoration-color: var(--hairline-gold);
+}
+
+.c-contact-map .c-map__open:hover,
+.c-contact-map .c-map__open:focus-visible {
+    color: var(--ink);
+}
+
+/*
+   THE PLACEHOLDER IS WHAT STANDS IN THE FRAME UNTIL LEAFLET ARRIVES, and on a
+   21:9 frame it has more room than it had in a column. The address inside it
+   keeps the display face main.css gives it; only the eyebrow above it is
+   brought onto the film's ladder so the two agree.
+*/
+.c-contact-map .c-map__name {
+    font-size: 0.625rem;
+    letter-spacing: 0.26em;
+}
+
+/*
+   THE COORDINATES AND THE CREDIT COME OFF THEIR OPACITY, AND THIS IS A CONTRAST
+   FIX RATHER THAN A TASTE ONE.
+
+   main.css dims both with opacity — 0.7 on the coordinates, 0.55 on the credit
+   — and on the cream page those two rules were written for, the ink underneath
+   is near-black and 55% of it is still legible. On this page the ink under them
+   is --ink-faint on mahogany, which measures 4.9:1 at full strength and 2.4:1
+   at 55%. Opacity is the wrong instrument on a dark ground: it fades toward the
+   ground rather than away from it.
+
+   SO THE DIMMING IS DONE BY COLOUR AND SIZE INSTEAD, and both lines keep the
+   place in the hierarchy they had. The credit in particular is not decoration —
+   OpenStreetMap's data is ODbL and CARTO's terms require theirs; a licence
+   condition set at 2.4:1 is a licence condition somebody cannot read.
+*/
+.c-contact-map .c-map__coordinates,
+.c-contact-map .c-map__credit {
+    opacity: 1;
+    color: var(--ink-faint);
+}
+
+
+/* ===========================================================================
+   6. The enquiry form, on a film ground
+   ---------------------------------------------------------------------------
+   NOT ONE LINE OF THE FORM'S MARKUP CHANGED AND NOT ONE LINE OF ITS BEHAVIOUR.
+   templates/partials/form.php draws it, app/forms/ validates and sends it, and
+   both are the files /membership uses. Same five fields, same required
+   attributes, same maxlengths, same subject list, same honeypot, same signed
+   time-trap, same rate limiter, same error summary that takes focus, same
+   privacy sentence above the button, same thank-you in place of the form, same
+   no-JavaScript POST. The one thing this page added to that renderer is an
+   optional scene number, which /membership does not set.
+
+   SO EVERYTHING BELOW IS THE GROUND AND THE TYPE, AND IT IS SIX RULES.
+
+   THE CONTROLS ALREADY WORKED ON A DARK GROUND, which is the reason there are
+   six rules and not sixty: main.css §... draws every control as a hairline box
+   on the page's own ground reading --rule, --fg and --accent, precisely so that
+   one control works on cream, on green and on wine without a modifier. On this
+   page home.css §2 has already pointed those three at the film's own cream,
+   hairline and gold. The form arrives correct.
+
+   WHAT IT ARRIVES WITHOUT IS THE FILM'S RHYTHM AND THE FILM'S HEADINGS, and
+   that is what this section is: the section's vertical space becomes the
+   scene's, the column widens a little because a film measure is wider than a
+   page measure, and the heading is set in the display face at chapter size like
+   every other scene on the page rather than in main.css's own h2.
+
+   NO ROUNDED CARDS, NO FILLS, NO SHADOWS, NO PANEL. The brief asks for the form
+   not to become a flashy UI and the cheapest way to honour that was to change
+   almost nothing: it is hairline boxes on mahogany with cream type in them.
+   =========================================================================== */
+
+.c-form {
+    padding-block: var(--scene);
+}
+
+.c-form .wrap {
+    max-width: var(--shell);
+    padding-inline: var(--gutter);
+}
+
+/*
+   44rem is main.css's measure for this column and it is right on a page whose
+   own shell is 1440 wide. The film's shell is 84rem and its prose measure is
+   38rem, so the form is widened to 48rem — enough that Email and Phone still
+   pair comfortably, and still well short of a line of input the width of the
+   band above it.
+*/
+.c-form .c-form__column {
+    max-inline-size: 48rem;
+}
+
+.c-form .c-form__head {
+    margin-block-end: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* The scene number, from the optional 'index' the content file sets. */
+.c-form .c-form__index {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+}
+
+.c-form .c-form__head .u-eyebrow {
+    font-size: clamp(0.625rem, 0.72vw, 0.7rem);
+    letter-spacing: 0.26em;
+    color: var(--gold-ink);
+}
+
+.c-form .c-form__head h2 {
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    font-size: clamp(2rem, 4.6vw, 3.4rem);
+    line-height: 1.06;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+}
+
+/*
+   THE LABELS KEEP THEIR SIZE AND GAIN A LITTLE OF THE FILM'S TRACKING. They are
+   the one piece of type on this page that has to be read while somebody is
+   typing, so they are not taken down to the film's caption size: 0.72rem is the
+   floor and it is what main.css already gives them.
+*/
+.c-form .c-form__label {
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+}
+
+/*
+   THE CONTROL'S HAIRLINE IS THE FILM'S. --rule on this page is home.css's
+   --hairline, which is cream at 12% — correct for a rule between two blocks and
+   too faint for the edge of a field somebody has to find and click. This lifts
+   it to 22% for the controls alone, leaves every other rule on the page where
+   it was, and takes it to the full gold on focus.
+*/
+.c-form .c-form__control {
+    border-color: color-mix(in srgb, var(--mm-cream-100) 22%, transparent);
+    background-color: color-mix(in srgb, var(--mm-black-900) 22%, transparent);
+}
+
+.c-form .c-form__control:hover {
+    border-color: color-mix(in srgb, var(--mm-cream-100) 42%, transparent);
+}
+
+.c-form .c-form__control:focus-visible {
+    border-color: var(--gold-bright);
+}
+
+/*
+   THE SUBMIT IS THE FILM'S PRIMARY ACTION AND NOT main.css's. .c-btn--primary
+   fills with --accent and prints in --bg, which on this page is gold on
+   near-black and is correct; what it does not have is the film's own padding,
+   tracking and unhurried transition. This is the same treatment
+   .c-film-invite__action--primary carries on the screen below, so the two
+   buttons on this page are one button.
+*/
+.c-form .c-form__actions .c-btn--primary {
+    padding: 1.05rem 2.1rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    background: var(--gold-ink);
+    color: var(--mm-black-900);
+    border-color: transparent;
+    transition: background-color var(--calm) var(--ease);
+}
+
+.c-form .c-form__actions .c-btn--primary:hover,
+.c-form .c-form__actions .c-btn--primary:focus-visible {
+    background: var(--gold-bright);
+    color: var(--mm-black-900);
+}
+
+/*
+   THE THANK-YOU AND THE ERROR SUMMARY ARE THE TWO STATES THE READER MEETS AT
+   THE WORST AND BEST MOMENTS ON THIS PAGE, and both keep every semantic
+   main.css gives them — the role, the tabindex, the autofocus, the list of
+   links to the fields. The heading of the thank-you is brought onto the display
+   face because it is a sentence the page says back, and the summary is left
+   entirely alone: an error message set in a serif is an error message somebody
+   designed instead of reading.
+*/
+.c-form .c-form__done-title {
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+}
+
+
+/* ===========================================================================
+   7. Narrow — the real mobile pass
+   ---------------------------------------------------------------------------
+   THE TWO-COLUMN SCENES BECOME ONE COLUMN AT 900px, which is home.css §14's own
+   breakpoint for film-chapter and is used here so that the address and the
+   chapters under it fold at the same moment. Below it nothing is a grid: the
+   address, the sentence beside it, the map's head and the form are all one
+   column, in the order they are in the markup, which is the order they are read
+   in.
+
+   THE ADDRESS COMES FIRST IN THE MARKUP AND THEREFORE FIRST ON A PHONE. That is
+   the whole reason the component puts the <address> above the prose rather than
+   beside it in a two-cell row — a reader on a handset gets what they came for
+   before the sentence about how post is handled.
+
+   THE MAP KEEPS 3:2 BELOW 900px, which is components/map.php's own default and
+   is what §5 above only overrides on a wide screen: a 21:9 map on a 375px
+   screen is 160px tall, which is a strip of basemap rather than a map somebody
+   can find a street in.
+
+   NOTHING HERE IS HOVER-ONLY. Every state that has a hover in this file has a
+   :focus-visible beside it, and the one control that is genuinely a hover — the
+   band's own — belongs to home.css and was built that way.
+   =========================================================================== */
+
+@media (max-width: 899px) {
+
+    /*
+       THE GATE STOPS BEING A LETTERBOX, WHICH IS PADEL's OWN FIX AND IS TAKEN
+       FROM IT WHOLE (padel.css §5). A 21:9 band at 390px is 167 pixels tall.
+       That is not a picture on a phone, it is a strip — and it is shorter than
+       the three lines of copy the scene stands on it, so the number is clipped
+       by the frame's own overflow and the eyebrow ends up over the sunlit
+       crowns of the trees. Measured before this rule: 2.00 on the number and
+       1.32 on the eyebrow, against 4.81 and 5.38 at 1440 on the same picture.
+
+       THE WINDOW BECOMES 3:2 AND THE PICTURE IS CROPPED TO IT RATHER THAN
+       FITTED INTO IT, held left so the gate pier, the open timber gate and the
+       head of the drive stay in frame. That is the half of this photograph the
+       scene is about; the house behind it is on the page four more times.
+
+       AND THE WASH IS DEEPER HERE, because the box it hangs on is a different
+       shape: the title is two lines at 1440 and three at 375, so the overlay is
+       half as tall again and the number at the top of it sits where a gradient
+       tuned for a 21:9 frame has barely started.
+    */
+    .c-film-band--wide .c-film-band__frame {
+        aspect-ratio: 3 / 2;
+    }
+
+    .c-film-band--wide .c-film-band__still img {
+        object-position: 24% center;
+    }
+
+    .c-film-band--wide .c-film-band__scrim {
+        background:
+            linear-gradient(to top,
+                color-mix(in srgb, var(--mm-black-900) 88%, transparent) 0%,
+                color-mix(in srgb, var(--mm-black-900) 76%, transparent) 34%,
+                color-mix(in srgb, var(--mm-black-900) 44%, transparent) 62%,
+                color-mix(in srgb, var(--mm-black-900) 18%, transparent) 84%,
+                transparent 100%);
+    }
+
+    /*
+       THE DESK STOPS BEING A STRIP TOO, AND FOR THE GATE'S REASON RATHER THAN
+       ITS OWN. home.css §14 takes the minimum height off a full-bleed band on a
+       phone, because on the Main Page and the six story pages a 16:9 sequence
+       with a floor under it is taller than the screen. It is the right rule
+       there and it is the wrong one here: this band is a 16:9 render, so with
+       no floor it is 219 pixels tall at 390 — shorter than the three lines of
+       copy standing on it, which then cover the whole picture and land on the
+       vase of pale flowers and the lit lamp shade.
+
+       So it takes a height rather than a ratio, which is padel.css §5's own
+       answer for its four full-bleed bands, and the crop moves right so the
+       flowers go out of frame and the desk, the person at it and the estate's
+       wordmark stay in.
+    */
+    .c-film-band--full .c-film-band__frame {
+        aspect-ratio: auto;
+        height: 62vh;
+        height: 62svh;
+    }
+
+    .c-film-band--full .c-film-band__still img {
+        object-position: 60% 46%;
+    }
+
+    /*
+       AND THE DESK'S WASH IS DEEPER TOO, FOR THE OPPOSITE REASON TO THE GATE'S.
+       That band is a dark render and needs almost nothing at 1440, where the
+       copy stands on the desk front. On a phone the frame is covered to the
+       HEIGHT, so the sides are cut and the picture rises: the copy lands on the
+       vase of pale flowers and the lit lamp shade, which are the two brightest
+       objects in the library on this page. Measured at 390 before this rule:
+       1.31 on the eyebrow.
+
+       The gradient takes the bottom two fifths and lets go before it reaches
+       the wordmark on the wall, which is the thing the frame is for.
+    */
+    .c-film-band--full .c-film-band__scrim {
+        background: linear-gradient(to top,
+            color-mix(in srgb, var(--mm-black-900) 90%, transparent) 0%,
+            color-mix(in srgb, var(--mm-black-900) 82%, transparent) 26%,
+            color-mix(in srgb, var(--mm-black-900) 54%, transparent) 46%,
+            color-mix(in srgb, var(--mm-black-900) 20%, transparent) 68%,
+            color-mix(in srgb, var(--mm-black-900) 26%, transparent) 100%);
+    }
+
+    .c-contact-place__inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: clamp(2rem, 6vw, 3rem);
+    }
+
+    /* The prose no longer has a street to align with, so the offset that put
+       it level with the heading becomes a gap that is twice as big as it looks.
+       It goes. */
+    .c-contact-place__body {
+        padding-block-start: 0;
+        max-width: none;
+    }
+
+    .c-contact-place__street {
+        max-width: none;
+    }
+
+    .c-contact-map__head {
+        max-width: none;
+    }
+}
+
+/*
+   THE FORM'S PAIRS STACK AT 640px AND THAT IS main.css's NUMBER, NOT ONE THIS
+   PAGE PICKED. Email and Phone sit side by side above it and stack below it,
+   which is where a 48rem column stops having room for two. Nothing here
+   changes it; this note exists so that the next reader does not go looking for
+   it in this file.
+
+   WHAT THIS DOES CHANGE IS THE CONTROLS' HEIGHT ON A TOUCH SCREEN. main.css
+   floors them at 44px, which is the smallest comfortable target; on this page
+   they are 48 because the ground under them is dark and a dark field with a
+   hairline round it is harder to hit accurately than a light one with a solid
+   border.
+*/
+@media (max-width: 639px) {
+    .c-form .c-form__control {
+        min-block-size: 48px;
+    }
+
+    .c-form .c-form__control--text {
+        min-block-size: auto;
+    }
+}
+
+
+/* ===========================================================================
+   8. Motion
+   ---------------------------------------------------------------------------
+   THERE IS ALMOST NONE OF IT HERE, AND THAT IS THE SECTION. home.js already
+   carries everything this page uses — the navigation, the anchors, the reveals,
+   the hero's film and the bands' — and contact.js adds one job, which is a very
+   slow scale on the two bands that are photographs rather than sequences.
+
+   WHAT THIS FILE CONTRIBUTES IS THE PROMISE THAT NOTHING IS HIDDEN. Nothing in
+   this stylesheet sets opacity: 0, visibility: hidden or a transform on any
+   element of this page. Every line of the address, every field of the form and
+   both photographs are painted by the stylesheet alone, in their final
+   position, on the first frame. home.js hides an element only at the moment it
+   takes responsibility for revealing it, and under prefers-reduced-motion
+   head.php fetches no library at all — so a reader who has asked for less
+   motion gets this page complete and about 50 KB lighter.
+
+   THE FORM IS FULLY USABLE WITH NO SCRIPT OF ANY KIND. It is an ordinary POST
+   to this address, answered by the server at this address. See
+   templates/partials/form.php, which is where that was decided and is not a
+   thing this page could change if it wanted to.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .c-contact-place__email,
+    .c-contact-map .c-map__open,
+    .c-form .c-form__control,
+    .c-form .c-form__actions .c-btn--primary {
+        transition: none;
+    }
+}

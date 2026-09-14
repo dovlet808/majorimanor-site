@@ -1,0 +1,539 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — after-dark.css
+
+   WHAT THIS FILE IS NOT. It is not a second design system and it is not a
+   fourth. AFTER DARK loads home.css, then estate.css, then club.css, and draws
+   almost everything with them: the tokens, the two faces, the grain, the
+   navigation and its active state, the hero, the bands, the chapters, the
+   plates, the detail track, the world index, the invitation, the footer and
+   five of its six act grounds are all approved components used here unchanged.
+   head.php lists the four files together for exactly that reason — a token
+   edited in home.css moves seven pages, so they cannot drift.
+
+   WHAT THIS FILE IS. Five things none of the six pages before it has a use for:
+
+     1. midnight  ONE NEW ACT GROUND, and the only addition this page makes to
+                  the system. The bottom of the site.
+     2. hero      a six-word title where every other film hero has two or four,
+                  and this page's own scrim over a lit facade
+     3. clause    the standalone legal line, on an act's ground — a place that
+                  component has never stood
+     4. crop      the two numbers that keep the right thing in a portrait window
+     5. narrow    the mobile pass, and the measured legibility fixes on it
+
+   Nothing here restyles a component home.css, estate.css or club.css already
+   owns except where a number is measured and written down beside it.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. Midnight — the one ground this page adds
+   ---------------------------------------------------------------------------
+   estate.css §1 declares five grounds and RESIDENCES added a sixth at the top
+   of the range — --mm-dawn, a warm brown-grey for a bedroom at sunrise. This
+   page adds one at the bottom, and the argument is the mirror image of that
+   one.
+
+   --mm-estate IS THE MAIN PAGE'S FLOOR AND NOT THIS PAGE'S. #0B0A08 is the
+   black the Main Page opens on, the black THE ESTATE stands its gates on, and
+   the black every film page since has ended on. That is right for six pages
+   whose last screen is the same temperature as their first. It is wrong for
+   this one, because this page's whole argument is a descent: the reader arrives
+   with the last of the light still in the sky and leaves in the middle of the
+   night, and a page that finishes on the ground the Main Page starts on has not
+   taken them anywhere.
+
+   SO ONE GROUND IS ADDED, AND EVERY CONSTRAINT THE OTHER SIX MEET IS MET:
+
+     it is a real step down            #060506 against --mm-estate's #0B0A08 —
+                                       about 45% of the luminance, which is the
+                                       same size of step that separates
+                                       --mm-estate from --mm-interior in the
+                                       other direction. Below this there is
+                                       nothing but #000, and pure black is not a
+                                       ground on this site: the grain in
+                                       home.css §2 has nothing to sit on and the
+                                       act seams stop reading as washes.
+     it is still the brand's colour    the same near-black, cooled by one point
+                                       of blue rather than warmed — which is the
+                                       one place on the site where the palette
+                                       goes cold, and it is the last two screens
+                                       of a page about being outdoors at night.
+     the type still clears             --ink 18.9:1, --gold-ink 9.9:1,
+                                       --ink-muted 9.7:1 and --ink-faint 5.8:1.
+                                       Every one of those is HIGHER than on any
+                                       other ground on the site, because this is
+                                       the darkest one. The floor measurement on
+                                       this page is therefore never on this act
+                                       — see §6.
+     it is declared here and only      estate.css is untouched, so the five
+     here                              approved pages that load it are
+                                       byte-identical. asset_url() cache-busts
+                                       on filemtime; adding a line to estate.css
+                                       would have re-versioned the stylesheet in
+                                       the markup of THE ESTATE, THE CLUB,
+                                       PADEL, EVENTS and RESIDENCES to save one
+                                       selector here.
+
+   THE SEAM COSTS NOTHING. estate.css draws `.c-act + .c-act::before` against
+   var(--ground), so the wash into this act is the existing rule reading a new
+   value. Nothing about the mechanism is touched — which is also why the wash
+   into midnight is the deepest one on the site without a line of code for it.
+
+   WHAT IT DOES NOT REACH, STATED RATHER THAN LEFT TO BE NOTICED. The last two
+   things on the page do not stand on it. .c-film-invite paints its own ground —
+   --ground-raised under a mahogany radial — and home.css §11 says why in as
+   many words: "a mahogany that only ever appears here makes the last screen
+   read as a room rather than as a footer". That is true on six approved pages
+   and it is true here, so it is left alone. film-footer.php is outside the acts
+   altogether and takes the page's own --bg.
+
+   SO THE DARKEST SCREEN ON THIS PAGE IS THE WORLD INDEX AND NOT THE LAST ONE,
+   and that is the right place for it: scene 08 is the reader standing outside
+   in the dark looking back at four lit rooms, and the invitation after it is
+   the door being opened again. A page that went out completely and then asked
+   for an enquiry would be asking from an empty room.
+   =========================================================================== */
+
+:root {
+    --mm-midnight: #060506;   /* the bottom of the night, and of the site */
+}
+
+.c-act--midnight { --ground: var(--mm-midnight); }
+
+
+/* ===========================================================================
+   2. The hero
+   ---------------------------------------------------------------------------
+   2a · THE TITLE IS SIX WORDS AND IT IS THE LONGEST ON THE SITE.
+
+   home.css sizes the hero title at clamp(2.6rem, 9.2vw, 8.25rem), measured for
+   "MAJORI MANOR", "THE ESTATE" and "PRIVATE CELEBRATIONS" — two words that
+   break once. RESIDENCES brought it down to clamp(2.1rem, 7.6vw, 6.6rem) for
+   four words that break twice. This page's title is the approved page's own
+   line, "The hours the estate keeps for itself", which is thirty-six
+   characters and sets on two lines: THE HOURS THE ESTATE over KEEPS FOR ITSELF.
+
+   IT BREAKS TWO WAYS AND THE MEASURE IS WHAT CHOOSES, WHICH IS THE ONE THING
+   THIS PAGE DOES THAT NO OTHER HERO DOES. The brief draws the headline as a
+   couplet — AFTER DARK over THE HOURS THE ESTATE over KEEPS FOR ITSELF — and
+   that is the right composition on a wide screen. It is the wrong one on a
+   phone, and the arithmetic says why rather than the taste.
+
+   Measured in the real face: "THE HOURS THE ESTATE" is 12.83em of uppercase
+   Playfair with 0.09em tracking on it, and "THE HOURS THE" is 8.97em.
+
+       1440    73.1px of type — the couplet is 938px inside a 1344px measure
+       1120    73.1px of type — the couplet is 938px inside about 1040px
+       1024    73.1px of type — the couplet is 938px inside about 944px, and
+               944px of container is not a margin, it is a coincidence
+       375     28.5px of type — the couplet would be 366px inside 335px, and
+               forcing it costs eight points of type to buy it back
+
+   SO THE MEASURE IS THE SWITCH AND NOT A SECOND FONT SIZE. max-width is set in
+   em on the title's own type, so it is the same fraction of the line at every
+   width: 9.4em holds "THE HOURS THE" and breaks the sentence three ways; 13.2em
+   holds the whole couplet and breaks it two ways. Above 1120px the second
+   applies. One property, two values, and the type ladder never changes.
+
+   IT IS THE SAME TYPE AT THE SAME TRACKING IN THE SAME CASE. The sentence is
+   approved copy and was not shortened to fit the type; the type was sized to
+   fit the sentence, which is the right way round.
+   =========================================================================== */
+
+.c-film-hero__title {
+    font-size: clamp(1.9rem, 7.6vw, 4.3rem);
+    max-width: 9.4em;
+    margin-inline: auto;
+}
+
+@media (min-width: 1120px) {
+    .c-film-hero__title {
+        max-width: 13.7em;
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   2b · The scrim, over a lit facade
+   ---------------------------------------------------------------------------
+   estate.css §1b hangs a soft dark band behind the hero copy because THE
+   ESTATE's first screen is white render in daylight; club.css §1 takes that
+   band down to about a third because THE CLUB's is the same house at night;
+   events.css §1 shapes it into the middle band because that hero is a lit dome;
+   residences.css §2b weights it to the foot because that hero is a dark
+   landing.
+
+   THIS HERO IS THE SAME BUILDING AS THE ESTATE'S AND THE OPPOSITE PROBLEM.
+   It is the real Majori Manor, which is white render — and at this hour the
+   render is in shadow and the bright things are eleven lit windows, four
+   uplit columns and a granite plinth with light grazing it. Frame 0 measures
+   30.9 mean, which is the brightest first screen since PADEL's.
+
+   THE COPY STANDS ON THE LAWN AND THE LAWN IS THE DARKEST PART OF THE PICTURE,
+   so the band is weighted low and hard rather than spread. The top third is
+   left almost alone: that is the roof and the sky, there is nothing to protect
+   there, and darkening it would take the one thing the shot is about — a house
+   with its lights on — down with it. What comes up is the bottom two fifths,
+   where the eyebrow, the title, the sentence and the cue all stand.
+
+   Same file, same pseudo-element, same stack; one number per stop.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__scrim::after {
+    background-image: linear-gradient(to bottom,
+        transparent 8%,
+        color-mix(in srgb, var(--mm-black-900) 10%, transparent) 34%,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 56%,
+        color-mix(in srgb, var(--mm-black-900) 56%, transparent) 76%,
+        color-mix(in srgb, var(--mm-black-900) 62%, transparent) 100%);
+}
+
+/*
+   NARROWER SCREENS NEED A DIFFERENT SHAPE AND NOT JUST MORE OF IT, and the
+   reason is the crop rather than the screen. A 16:9 film in a portrait window
+   is covered to the HEIGHT, so the whole height is shown and only the sides are
+   cut — which means the lit windows keep their vertical position exactly, and
+   below 620px home.css centres the hero copy. The band of lit ground-floor
+   windows and the band of type land on each other, and no object-position can
+   separate them: the second value does nothing at this aspect.
+
+   SO THE MIDDLE OF THE GRADIENT COMES UP AND THE ENDS DO NOT. The top twelfth
+   is left where it was so the roof keeps its black against the sky, and the
+   very foot is left so the lawn keeps the light lying on it; what darkens is
+   the half of the height the copy crosses. The house is still a house with its
+   lights on, which is the whole shot.
+*/
+@media (max-width: 899px) {
+    .c-film-hero__scrim::after {
+        background-image: linear-gradient(to bottom,
+            transparent 4%,
+            color-mix(in srgb, var(--mm-black-900) 26%, transparent) 20%,
+            color-mix(in srgb, var(--mm-black-900) 60%, transparent) 40%,
+            color-mix(in srgb, var(--mm-black-900) 68%, transparent) 58%,
+            color-mix(in srgb, var(--mm-black-900) 62%, transparent) 80%,
+            color-mix(in srgb, var(--mm-black-900) 50%, transparent) 100%);
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   2c · The eyebrow, measured
+   ---------------------------------------------------------------------------
+   "AFTER DARK" is set in gold at 10.6px on a phone and its letters cross the
+   lit ground floor of the house. A scrim deep enough to clear 4.5:1 over lit
+   windows is not a scrim any more, it is switching the house off — which is the
+   arithmetic PADEL found first (padel.css §3a), EVENTS repeated (events.css
+   §1b) and RESIDENCES repeated again (residences.css §2c).
+
+   THE ANSWER IS THEIRS: a soft ellipse behind the line itself, at most 30rem
+   wide against a facade that is 1500px wide in a portrait window, so nothing
+   about the picture changes and the line clears by a margin rather than by a
+   hair's breadth.
+
+   IT IS APPLIED AT EVERY WIDTH AND IT IS INVISIBLE AT MOST OF THEM. On a
+   desktop this eyebrow stands over the dark lawn and already clears
+   comfortably; a black ellipse painted over a black lawn is a black ellipse
+   painted over black. Writing it into the narrow query would have made this
+   rule two rules that have to be kept in step.
+
+   z-index: -1 INSIDE isolation: isolate is the whole trick. The wash has to
+   paint behind the type and in front of the film; isolate makes the eyebrow its
+   own stacking context, so the negative index lands at the bottom of THAT
+   context — behind the letters and nowhere near the picture's own layer.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__eyebrow {
+    position: relative;
+    isolation: isolate;
+}
+
+.c-film-hero__eyebrow::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    top: 50%;
+    inline-size: min(30rem, 88vw);
+    block-size: 6rem;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background-image: radial-gradient(62% 56% at 50% 50%,
+        color-mix(in srgb, var(--mm-black-900) 90%, transparent) 0%,
+        color-mix(in srgb, var(--mm-black-900) 74%, transparent) 46%,
+        color-mix(in srgb, var(--mm-black-900) 38%, transparent) 74%,
+        transparent 92%);
+}
+
+
+/* ===========================================================================
+   3. The clause, on an act's ground
+   ---------------------------------------------------------------------------
+   components/clause.php has one opt-in field, 'standalone', and it exists for
+   this page: the licensing sentence under the private gaming scene is a legal
+   line standing under a section of an ordinary page rather than inside a
+   document. §7 of main.css gives it the fine-print treatment — --fs-sm under a
+   1px --rule at 0.7 opacity — and softening by opacity rather than by a colour
+   is what lets the one rule serve every ground.
+
+   IT HAS NEVER STOOD ON AN ACT BEFORE, and two things about a film page are
+   different from the page it was drawn for.
+
+   ONE: THE MEASURE. main.css's .section > .wrap is the site's own shell and it
+   is wider than a film chapter's column. On a page of scenes a single 96-
+   character sentence running the full shell reads as a caption for the picture
+   above it rather than as a statement under the scene. It is held to the same
+   measure film-chapter's prose takes, and centred under the plate it belongs to.
+
+   TWO: THE AIR. .c-clause-band takes its top padding off so the clause opens on
+   its own hairline rather than on a second section's worth of space — that is
+   main.css's rule and it is right. But on a film page the block ABOVE it is a
+   film-plates, whose own bottom margin is a scene's worth rather than a
+   section's, and the block BELOW it is the seam into the next act. So the
+   bottom comes up to a scene's spacing and the whole thing sits inside the act
+   rather than between two of them.
+
+   NOTHING HERE CHANGES THE TREATMENT. Same size, same rule, same 0.7, same
+   wording. What changes is where the box is.
+   =========================================================================== */
+
+.c-clause--standalone {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding-block-end: 0;
+}
+
+.c-clause-band {
+    padding-block-end: var(--scene-tight, 6rem);
+}
+
+
+/* ===========================================================================
+   4. The crop, in a portrait window
+   ---------------------------------------------------------------------------
+   THE BRIEF ASKS FOR A REAL MOBILE PASS AND FOR THE FOCAL POINT OF EACH ROOM TO
+   SURVIVE IT, and on this page that comes to two numbers.
+
+   THE HERO. The first screen fills the window and the film is 16:9, so in a
+   portrait window the film is scaled to the HEIGHT and the crop is taken off
+   the SIDES — the second value of object-position does nothing on a phone and
+   the first one does all of it. home.css §14 sets `center 38%` below 620px,
+   which on this frame shows the middle 26% of its width: three windows and a
+   downpipe, with the portico and its lit columns cut off at the right edge.
+   Measured on frame 0, the portico runs from 68% to 96% of the width, the
+   balcony on its curved bay sits at 58% and the lit bay window at 46%.
+
+   76% PUTS THE FIRST COLUMN, THE BALCONY AND THE LIT BAY IN THE WINDOW
+   TOGETHER, with the roof above them and the lawn below — which is a facade
+   with depth in it rather than a wall with windows in it. It was chosen by
+   rendering 62, 70, 76 and 82 side by side at 390px rather than by arithmetic:
+   at 62 the portico is gone entirely, and at 82 the oculus arrives and the
+   composition crowds the right edge. Same idea as padel.css's 48%, events.css's
+   38% and residences.css's 34% on their own heroes, and for the same reason:
+   the subject stays in the window, and the half of the frame that is context is
+   the half that goes.
+
+   THE GARDEN. ad-garden is a lateral drift and its subject is off-centre: the
+   rotunda is at the right of the frame and the lamp standard is at the middle.
+   A centred crop on a phone is the lamp and a hedge. 64% keeps the rotunda and
+   the lamp both in the window, which is the whole composition.
+
+   BOTH STOP AT 900px because that is where the crop stops being severe: at
+   1024x768 a 16:9 frame loses a quarter of its width, at 1440x900 a tenth, and
+   at 1920x1080 nothing at all.
+
+   THE OTHER FOUR BANDS NEED NOTHING and that is worth writing down. home.css
+   §14 takes the minimum height off .c-film-band--full below 900px, so every
+   full-bleed frame on a phone is exactly 16:9 and the picture in it is exactly
+   16:9 — object-fit: cover on a ratio that already matches crops nothing. All
+   four were written and all four were measured and removed.
+   =========================================================================== */
+
+@media (max-width: 899px) {
+    .c-film-hero__still,
+    .c-film-hero__still img,
+    .c-film-hero__video {
+        object-position: 76% 42%;
+    }
+
+    #house .c-film-band__still img,
+    #house .c-film-band__video {
+        object-position: 64% 50%;
+    }
+}
+
+
+/* ===========================================================================
+   5. Narrow — what is left of the mobile pass
+   ---------------------------------------------------------------------------
+   home.css §14, club.css §5 and estate.css's own narrow pass do nearly all of
+   it. What is here is only what this page's own material asks for.
+   =========================================================================== */
+
+/*
+   5a · THE BAND OVERLAY, AND THE ONE ELEMENT ON THE PAGE THAT MEASURED BELOW AA.
+
+   THE NUMBER FIRST. Swept at seven widths, every text element on this page
+   clears AA except one, at one width: at 1920x1080 the SCENE NUMBER on the
+   salon band — ".c-film-band__index", 10.6px of --ink-muted at the very top of
+   the overlay box — crosses a background of 0.0646 relative luminance and
+   measures 4.01:1. Everywhere else it is 6.7 or better, and at 1440 the same
+   element on the same band is fine.
+
+   1920 IS WHERE IT HAPPENS BECAUSE OF WHAT THE OVERLAY IS. club.css §1c gives
+   the box `padding-top: clamp(4rem, 12vh, 9rem)`, so the taller the viewport
+   the further the scene number stands above the copy under it — and club.css's
+   own gradient is 88% black at the foot of that box and only 44% at the top of
+   it. At 1080 tall the number sits 153px up, on 44%, directly under the lit
+   whisky shelves, which are the brightest thing on this page's second screen.
+
+   AND THE FIX IS 18%, WHICH IS ARITHMETIC RATHER THAN TASTE. To take 4.01 to
+   4.5 the background under those letters has to come down from 0.0646 to 0.052
+   relative luminance, which is a factor of 0.80 in linear light and therefore
+   about 0.91 in sRGB — a black wash of nine percent. Eighteen gets it to about
+   4.9, which is a margin rather than a hair's breadth, and it is small enough
+   that the picture behind the number does not visibly change.
+
+   IT IS A SECOND WASH AND NOT A RESTATEMENT OF club.css's. Restating those four
+   stops here would mean two files describing one gradient and drifting the next
+   time either is touched — which is the argument club.css §1c makes for its own
+   existence. This hangs off the overlay box, fades out entirely by 62% of its
+   height, and therefore touches the scene number and nothing else: the eyebrow,
+   the title and the caption all stand on club.css's own 74% and 88%.
+*/
+.c-film-band--full .c-film-band__overlay {
+    z-index: 1;
+}
+
+.c-film-band--full .c-film-band__overlay::before {
+    content: "";
+    position: absolute;
+    inset: -1.25rem -100vw 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom,
+        color-mix(in srgb, var(--mm-black-900) 18%, transparent) 0%,
+        color-mix(in srgb, var(--mm-black-900) 10%, transparent) 36%,
+        transparent 62%);
+}
+
+/*
+   5b · THE SAME WASH, ON A PHONE. Four of this page's six full-bleed bands
+   name themselves on the picture, and every one of those four has a light
+   source in the bottom third of it — a lit bar, a fire, a chandelier over white
+   cloths, a lamp standard on wet stone. home.css §7's frame scrim reaches 72%
+   only at the very foot of a frame that, below 900px, is 219px tall in total.
+
+   THE COPY BOX CARRIES ITS OWN GRADIENT. THE CLUB solved this first (club.css
+   §1c, which this page already loads and which covers the desktop case); PADEL
+   added the narrow case (padel.css §3b), EVENTS copied it (events.css §4a) and
+   RESIDENCES copied it again (residences.css §5a). This is the fourth copy of
+   the narrow rule and it is a copy on purpose — four pages solving one problem
+   four ways is how a design system stops being one — with this page's own
+   numbers in it, which are the deepest of the four because these are the only
+   four frames on the site whose brightest region is exactly where the type sits.
+
+   THE OVERLAY KEEPS position: absolute AND TAKES A z-index, which is the whole
+   of how this works and the one way to get it wrong. home.css pins the overlay
+   to the foot of the frame with `inset: auto 0 0`; making it relative in order
+   to hang a pseudo-element off it drops it back into the flow and prints the
+   scene title at the TOP of the picture. z-index: 1 gives it a stacking context
+   without moving it, and z-index: -1 on the wash then lands between the picture
+   and the type.
+
+   AND THE WASH IS WIDER THAN THE BOX IT HANGS ON, for padel.css's reason: the
+   overlay is capped at --shell and centred, so a gradient the width of that box
+   has two visible vertical edges. -100vw either side is clipped by the frame's
+   own overflow: clip.
+*/
+@media (max-width: 899px) {
+    .c-film-band--full .c-film-band__overlay::before {
+        inset: -1.75rem -100vw 0;
+        background-image: linear-gradient(to bottom,
+            transparent,
+            color-mix(in srgb, var(--mm-black-900) 58%, transparent) 32%,
+            color-mix(in srgb, var(--mm-black-900) 86%, transparent) 100%);
+    }
+}
+
+/*
+   5c · THE SILENT BAND, ON A PHONE. Act three is one photograph with nothing
+   written on it and one sentence on the ground below it, and on a wide screen
+   the two read as one held breath: home.css gives a full band a floor of
+   min(78svh, 44rem), so on a desktop that photograph is most of a screen. In a
+   portrait window that floor is lifted (home.css §14, min-height: 0) and a 16:9
+   frame at 390px is 219 pixels tall — a silent picture that small reads as a
+   picture that failed rather than as a pause.
+
+   SO THE FRAME IS GIVEN A PORTRAIT RATIO ON A PHONE, and it is set as
+   aspect-ratio rather than as --band-ratio: film-band.php writes that custom
+   property into a style attribute from the content file, and an inline
+   declaration cannot be beaten by a stylesheet. The property it feeds can be.
+   #quiet is the id the content file already declares for this band, so nothing
+   about the markup changes to make this possible. RESIDENCES' own rule
+   (residences.css §5b), on this page's own picture.
+
+   AND THE CROP IS TAKEN OFF-CENTRE. Covering a 4:5 box with a 16:9 frame shows
+   the middle 45% of its width, which on this photograph is the lit
+   chimneypiece and the two sofas — which is, for once, exactly the middle. 50%
+   is therefore not a default here; it is the measured answer, and it is written
+   down so that nobody moves it looking for one.
+*/
+@media (max-width: 899px) {
+    #quiet .c-film-band__frame {
+        aspect-ratio: 4 / 5;
+    }
+
+    #quiet .c-film-band__still img {
+        object-position: 50% 46%;
+    }
+}
+
+/*
+   5d · THE CHAPTER THAT IS ONLY A HEADING, and this page has two of them.
+
+   home.css §8 sets an opening chapter as a 5fr/6fr grid — the display line in
+   the narrower half, the prose in the wider one — which is right for every
+   scene that opens with a heading and then says something. Scene 04 says
+   nothing after it: an eyebrow, a sentence, and a screen of its own ground.
+   Left in that grid the sentence sits in 45% of the measure with 800px of
+   nothing beside it, which reads as a column that lost its neighbour rather
+   than as a silence.
+
+   ONE COLUMN, AND THE MEASURE IS WHERE THE LINE BREAKS. home.css holds a
+   chapter title to 18ch because it is sharing the row; alone it can take 25,
+   and at 25 this page's silence — "The quieter side of Majori Manor." — breaks
+   after "side", which is the break the sentence wants. The size comes up a step
+   with it, because a statement standing on its own screen is not a scene
+   opening.
+
+   IT IS SELECTED BY SHAPE RATHER THAN BY ID, which is RESIDENCES' own rule
+   (residences.css §5c) restated here because this page does not load that file.
+   :has() asks whether this chapter has a body; any chapter that does not gets
+   this treatment, on this page or any later one, and the day scene 04 acquires a
+   paragraph it goes back to being a scene opening without anything here being
+   edited.
+*/
+.c-film-chapter--open:not(:has(.c-film-chapter__body)) .c-film-chapter__inner {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.c-film-chapter--open:not(:has(.c-film-chapter__body)) .c-film-chapter__title {
+    max-width: 25ch;
+    font-size: clamp(2.15rem, 5.2vw, 4.6rem);
+}
+
+/*
+   5e · THE INVITATION'S TWO BUTTONS ARE THE SITE'S OWN PAIR. "Apply for
+   membership" and "Private enquiry" are the labels THE CLUB, PADEL and the Main
+   Page already carry, and they are measured there. Below 400px the tracking
+   comes off the way it comes off every other uppercase line on the site at that
+   width, and the labels themselves are untouched.
+*/
+@media (max-width: 399px) {
+    .c-film-invite__action {
+        letter-spacing: 0.14em;
+    }
+}

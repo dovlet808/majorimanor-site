@@ -1,0 +1,380 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — events.css
+
+   WHAT THIS FILE IS NOT. It is not a second design system and it is not a
+   third. EVENTS loads home.css, then estate.css, then club.css, and draws
+   almost everything with them: the tokens, the two faces, the grain, the
+   navigation and its active state, the hero, the bands, the chapters, the
+   plates, the world index, the invitation, the footer, the six act grounds,
+   the ledger and the dialogue are all approved components used here unchanged.
+   head.php lists the four files together for exactly that reason — a token
+   edited in home.css moves five pages, so they cannot drift.
+
+   WHAT THIS FILE IS. Four things none of the four pages before it has a use
+   for:
+
+     1. hero      this page's own scrim over a lit dome rather than a dark
+                  house, and the one measured legibility fix under it
+     2. dialogue  the same stage at six rooms instead of four
+     3. crop      the one number that keeps the dome in a portrait window
+     4. narrow    two measured legibility fixes on a phone, and the ledger's
+                  longest line
+
+   Nothing here restyles a component home.css, estate.css or club.css already
+   owns except where a number is measured and written down beside it.
+
+   THE PAGE DESCENDS AND NEVER BRIGHTENS AFTER SCENE 01. Green in the park
+   while it is still afternoon, mahogany as the light goes, the deepest ground
+   for the lawn at night, mahogany again for the dining rooms, near-black for
+   the estate seen whole, and wine for the celebration and the last three
+   screens. All five are estate.css §1's and not one of them is new.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. The hero, over a lit dome
+   ---------------------------------------------------------------------------
+   estate.css §1b hangs a soft dark band behind the hero copy and club.css §1
+   takes it down to about a third, and both are written against a photograph of
+   the same house: THE ESTATE's white render needs the band, THE CLUB's night
+   façade does not.
+
+   THIS HERO IS NEITHER. It is the supplied aerial of the pavilion: a black sky
+   and black pines top and bottom, and in the middle of the frame a geodesic
+   dome lit gold from the inside — the single brightest object anywhere on this
+   site, and it sits directly behind the title.
+
+   SO THE BAND IS BACK AND IT IS SHAPED RATHER THAN RAISED. The film itself is
+   graded down at encode (see HERO_GRADE in tools/photos/build_events_media.py)
+   and this adds a wash over the middle band of the screen only — the third of
+   the height the seal, the eyebrow and the title actually cross. Above and
+   below it stays transparent so the sky keeps its black and the lawn keeps its
+   strings of lights, which are the two things that make the shot.
+
+   IT IS A LAYER, NOT A REPLACEMENT, which is estate.css's own reason: restating
+   home.css's whole gradient stack with one more entry would mean the two files
+   could drift the next time that stack is touched. This is the same
+   pseudo-element the two files before it use, with this page's numbers in it.
+   =========================================================================== */
+
+.c-film-hero__scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom,
+        transparent 6%,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 26%,
+        color-mix(in srgb, var(--mm-black-900) 56%, transparent) 46%,
+        color-mix(in srgb, var(--mm-black-900) 58%, transparent) 62%,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 80%,
+        color-mix(in srgb, var(--mm-black-900) 22%, transparent) 100%);
+}
+
+/*
+   Narrower screens need more of it, and for a reason about the crop rather
+   than the screen: a 16:9 film in a portrait window is covered to the height,
+   so the dome fills the frame edge to edge and the copy has nowhere dark left
+   to stand at all.
+*/
+@media (max-width: 899px) {
+    .c-film-hero__scrim::after {
+        background-image: linear-gradient(to bottom,
+            transparent 4%,
+            color-mix(in srgb, var(--mm-black-900) 42%, transparent) 22%,
+            color-mix(in srgb, var(--mm-black-900) 62%, transparent) 44%,
+            color-mix(in srgb, var(--mm-black-900) 64%, transparent) 64%,
+            color-mix(in srgb, var(--mm-black-900) 42%, transparent) 82%,
+            color-mix(in srgb, var(--mm-black-900) 28%, transparent) 100%);
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   1b. The eyebrow, measured
+   ---------------------------------------------------------------------------
+   ONE LINE ON THIS PAGE DOES NOT CLEAR AA WITHOUT HELP AND THIS IS IT.
+
+   home.css §6 gives the hero eyebrow gold at full strength plus a soft shadow,
+   and its note says why: on the Main Page it is the one line of the first
+   screen that stands over the brightest part of the photograph. On this hero
+   the brightest part of the photograph is a lit geodesic dome and the eyebrow
+   stands in the middle of it. Measured against the 95th-percentile brightest
+   pixel its letters actually cross, with the glyphs made transparent so they
+   are not sampled as their own background: 3.39:1. Everything else on the page
+   clears without help.
+
+   THREE THINGS WERE TRIED AND THE NUMBERS ARE THE ARGUMENT.
+
+     3.39   as it stands
+     3.39   home.css's text-shadow tripled — no movement at all, because a
+            shadow separates type from a highlight and this line is sitting
+            inside a continuous field of warm light rather than beside one.
+            This is PADEL's finding at its own hero, repeated here (padel.css
+            §3a): "a shadow can only separate type from something it is not
+            already sitting inside."
+     5.38   the hero scrim's middle stop taken from 56% to 72%. It clears, and
+            it costs the dome the glow that is the whole shot — the picture is
+            a lit object among dark trees and dimming the lit object is
+            dimming the subject.
+    10.87   a soft ellipse behind the line itself. It is 578px wide on a 1440
+            screen and the dome behind it is nine hundred, so nothing about the
+            picture changes; and it clears by a margin rather than by a
+            hair's breadth.
+
+   It is padel.css §3a's answer to the same problem on its own hero, at this
+   page's numbers and with the same finding about text-shadow underneath it.
+
+   z-index: -1 INSIDE isolation: isolate is the whole trick. The wash has to
+   paint behind the type and in front of the film; isolate makes the eyebrow its
+   own stacking context, so the negative index lands at the bottom of THAT
+   context — behind the letters and nowhere near the picture's own layer.
+   --------------------------------------------------------------------------- */
+
+.c-film-hero__eyebrow {
+    position: relative;
+    isolation: isolate;
+}
+
+.c-film-hero__eyebrow::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    top: 50%;
+    inline-size: min(34rem, 92vw);
+    block-size: 6.5rem;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background-image: radial-gradient(64% 58% at 50% 50%,
+        color-mix(in srgb, var(--mm-black-900) 92%, transparent) 0%,
+        color-mix(in srgb, var(--mm-black-900) 78%, transparent) 46%,
+        color-mix(in srgb, var(--mm-black-900) 40%, transparent) 74%,
+        transparent 92%);
+}
+
+
+/* ===========================================================================
+   2. The dialogue, at six
+   ---------------------------------------------------------------------------
+   club.css §3 pins a stage one viewport tall and stands a column of names on
+   it. THE CLUB has four names; this page has six, and six of the same thing in
+   the same height is the one way that component can be got wrong: at THE CLUB's
+   sizes the list runs past the foot of a 900px window and the last name is
+   under the fold of a section that is pinned precisely so nothing is.
+
+   THREE NUMBERS COME DOWN AND NOTHING ELSE CHANGES. The gap between names, the
+   size of a name, and the head above them — each by about a fifth, which is
+   what it takes for six to occupy the height four did. The measurements are in
+   docs/EVENTS.md §6.
+
+   THE STAGE'S OWN HEIGHT IS ALREADY RIGHT and is not touched: club.css sizes it
+   as (--items + 1) * 78vh and film-dialogue.php writes --items from the content
+   file, so six rooms already get six slices of scroll.
+   =========================================================================== */
+
+html.is-dialogue .c-dialogue__list {
+    gap: clamp(1rem, 2.4vh, 1.75rem);
+}
+
+html.is-dialogue .c-dialogue__label {
+    font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+}
+
+html.is-dialogue .c-dialogue__head {
+    margin-bottom: clamp(1.25rem, 3vh, 2.25rem);
+}
+
+html.is-dialogue .c-dialogue__title {
+    font-size: clamp(1.6rem, 3vw, 2.5rem);
+}
+
+/*
+   THE EYEBROW IS THREE WORDS AND club.css HOLDS IT TO 16ch. "A house of
+   dialogue" is nineteen characters and breaks after "house"; "What happens
+   here" is seventeen and, tracked at 0.26em, breaks after every one of them —
+   three lines of one word each, above a display line that is two. The measure
+   is the only thing wrong with it, so the measure is what changes.
+*/
+html.is-dialogue .c-dialogue__eyebrow {
+    max-width: 28ch;
+}
+
+/*
+   The line under the current name is the only one printed — club.css's own
+   rule — and with six names above it, it now has less room to be printed in.
+   One line of leading off it, and the measure held to what a single line can
+   carry at this size.
+*/
+html.is-dialogue .c-dialogue__note {
+    max-width: 34ch;
+    line-height: 1.6;
+}
+
+/*
+   OFF THE STAGE THE GRID IS SIX CAPTIONED PICTURES AND IT IS COMPLETE. Two
+   across is THE CLUB's grid and is right for four; for six on a wide screen it
+   is three rows of a section that is already the longest on the page. Three
+   across above the shell's own breakpoint, two below it, one on a phone —
+   which is home.css's own ladder for the world index.
+
+   THIS IS THE NO-JAVASCRIPT VIEW AND THE REDUCED-MOTION VIEW, so it is not a
+   fallback that nobody sees: every reader who has asked for less motion reads
+   this section as a grid.
+*/
+@media (min-width: 1080px) {
+    html:not(.is-dialogue) .c-dialogue__list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* ===========================================================================
+   3. The hero's crop on a phone
+   ---------------------------------------------------------------------------
+   THE BRIEF FOR THIS PAGE ASKS FOR THE CORRECT CROP OF pavilion.mp4 ON MOBILE
+   AND FOR THE PAVILION TO STAY THE FOCAL POINT. This is that, and it is one
+   number.
+
+   The hero fills the window and the film is 16:9, so in a portrait window the
+   film is scaled to the HEIGHT and the crop is taken off the SIDES — which
+   means the second value of object-position does nothing on a phone and the
+   first one does all of it. home.css §14 sets `center 38%` below 620px; the
+   38% is the vertical it was written for on the Main Page's house, and centred
+   horizontally this film shows the middle 26% of its width. Measured on frame
+   0, the dome occupies 16% to 55% of the frame and the long building runs from
+   there to the right edge, so a centred crop cuts the dome down its axis and
+   fills the rest of a phone screen with the gap between the two buildings.
+
+   38% PUTS THE DOME IN THE WINDOW WHOLE, with its arched doorway on the centre
+   line and the lit lawn under it. Same idea as padel.css's 48% on its own hero
+   and for the same reason: the subject stays in the window, and the half of
+   the frame that is context is the half that goes.
+
+   IT STOPS AT 900px because that is where the crop stops being severe: at
+   1024x768 a 16:9 film loses a quarter of its width, at 1440x900 a tenth, and
+   at 1920x1080 nothing at all — and at those widths the whole composition,
+   both buildings included, is what the screen is for.
+
+   THE BANDS NEED NOTHING AND THAT IS WORTH WRITING DOWN. home.css §14 takes
+   the minimum height off .c-film-band--full below 900px, so every full-bleed
+   frame on a phone is exactly 16:9 and every picture in one is exactly 16:9 —
+   object-fit: cover on a ratio that already matches crops nothing, and an
+   object-position on any of them would be a rule that changes no pixel. Both
+   were written and both were measured and removed.
+   =========================================================================== */
+
+@media (max-width: 899px) {
+    .c-film-hero__still,
+    .c-film-hero__still img,
+    .c-film-hero__video {
+        object-position: 38% 38%;
+    }
+}
+
+
+/* ===========================================================================
+   4. Narrow — what is left of the mobile pass
+   ---------------------------------------------------------------------------
+   home.css §14 and club.css §5 do nearly all of it. What is here is only what
+   this page's own material asks for.
+   =========================================================================== */
+
+/*
+   THE TITLE IS TWO WORDS AND THE SECOND IS TWELVE CHARACTERS LONG. At 9.2vw in
+   a 375px window "CELEBRATIONS" is 34px of type across 327px of usable width
+   with 0.06em of tracking on it — which fits, and fits by four pixels. Below
+   400px the tracking comes off the way it comes off every other display line
+   on the site at that width, and the type itself is left alone.
+*/
+@media (max-width: 399px) {
+    .c-film-hero__title {
+        letter-spacing: 0.03em;
+    }
+}
+
+/*
+   4a · THE BAND OVERLAY, ON A PHONE. Measured on this page's six full-bleed
+   bands, at 375, 390 and 430: the gold eyebrow over the picture reads 4.06 to
+   4.44 against the 95th-percentile brightest pixel its letters cross. Every
+   one of those bands is a lit object at night — a glowing dome, a lawn strung
+   with lights, a chandelier — and home.css §7's frame scrim reaches 72% only
+   at the very foot of a frame that, below 900px, is 219px tall in total.
+
+   THE COPY BOX CARRIES ITS OWN GRADIENT. THE CLUB solved this first
+   (club.css §1c) and PADEL copied it (padel.css §3b); this is the third copy
+   and it is a copy on purpose — three pages solving one problem three ways is
+   how a design system stops being one.
+
+   THE OVERLAY KEEPS position: absolute AND TAKES A z-index, which is the whole
+   of how this works and the one way to get it wrong. home.css pins the overlay
+   to the foot of the frame with `inset: auto 0 0`; making it relative in order
+   to hang a pseudo-element off it drops it back into the flow and prints the
+   scene title at the TOP of the picture. z-index: 1 gives it a stacking
+   context without moving it, and z-index: -1 on the wash then lands between
+   the picture and the type.
+
+   AND THE WASH IS WIDER THAN THE BOX IT HANGS ON, for padel.css's reason: the
+   overlay is capped at --shell and centred, so a gradient the width of that
+   box has two visible vertical edges. -100vw either side is clipped by the
+   frame's own overflow: clip.
+*/
+@media (max-width: 899px) {
+    .c-film-band--full .c-film-band__overlay {
+        z-index: 1;
+    }
+
+    .c-film-band--full .c-film-band__overlay::before {
+        content: "";
+        position: absolute;
+        inset: -1.75rem -100vw 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image: linear-gradient(to bottom,
+            transparent,
+            color-mix(in srgb, var(--mm-black-900) 46%, transparent) 34%,
+            color-mix(in srgb, var(--mm-black-900) 74%, transparent) 100%);
+    }
+}
+
+/*
+   4b · THE DIALOGUE'S LINE, ON A PHONE. club.css §5 turns the stage's scrim
+   through ninety degrees below 900px — on a portrait screen the names stand ON
+   the picture from top to bottom rather than beside it — and it is measured
+   against club/dialogue-capital, the brightest of THE CLUB's four rooms. This
+   page has six and two of them are brighter than that: a candlelit glass dome
+   and a cream hall under a crystal chandelier. Measured at 375, 390 and 430,
+   the line under the current name reads 3.81 to 3.93.
+
+   THREE STOPS COME UP AND THE FOURTH IS LEFT ALONE. The foot of the gradient
+   is already at 97% and is right; what changes is the middle of the frame,
+   where six names occupy more of the height than four did. The picture is
+   still visible through it — at the top it is 86% rather than 60%, which on a
+   phone is the room reading as a ground rather than as a photograph, and that
+   is the trade this page makes at this width — and every line clears AA.
+*/
+@media (max-width: 899px) {
+    html.is-dialogue .c-dialogue__scrim {
+        background-image:
+            linear-gradient(to top,
+                color-mix(in srgb, var(--ground) 98%, transparent) 0%,
+                color-mix(in srgb, var(--ground) 96%, transparent) 38%,
+                color-mix(in srgb, var(--ground) 92%, transparent) 68%,
+                color-mix(in srgb, var(--ground) 86%, transparent) 100%);
+    }
+}
+
+/*
+   THE LEDGER'S LAST VALUE IS THE LONGEST STRING ON THE PAGE — "Glass by day; a
+   lit object in the park by night" — and estate.css sets a ledger value in one
+   column beside its label. At 375px that is three lines against a one-line
+   label, which is a row that reads as two rows. The measure is held instead, so
+   it breaks where the semicolon is.
+*/
+@media (max-width: 619px) {
+    .c-ledger__value {
+        max-width: 22ch;
+    }
+}

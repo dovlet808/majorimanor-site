@@ -1,0 +1,3487 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — main.css
+
+   One stylesheet, strict layer order (ARCHITECTURE §8.7):
+
+     1. @font-face
+     2. :root — tokens
+     3. [data-mood] — colour temperatures and grounds
+     4. reset
+     5. base typography (bare elements, no classes)
+     6. layout primitives
+     7. components
+     8. page overrides
+     9. utilities
+
+   §3 is the only place below the tokens where a brand colour may be named.
+   Everything from §4 down reads --bg, --fg, --rule and --accent, which is what
+   lets one component stand on cream, on green and on wine without a modifier.
+
+   Breakpoints: 480 / 768 / 1180 / 1440. Everything holds from 360px with no
+   horizontal scroll.
+
+   Nothing here loads from an external host. Every url() is relative.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. @font-face
+   ---------------------------------------------------------------------------
+   Self-hosted woff2, from assets/fonts/. Google Fonts CDN is deliberately not
+   used — the client is in the EU and a font request is a third-party request.
+
+   Two files, not eight. Both are VARIABLE fonts with a weight axis of 400–600,
+   subset to Latin + Latin Extended-A, which is what carries the Latvian
+   diacritics (ā č ē ģ ī ķ ļ ņ š ū ž — "Jūrmala"). One file per family covers
+   every weight the design uses, so there is no unicode-range split to keep in
+   sync and no second request when a page turns out to contain a diacritic.
+
+   font-weight: 400 600 declares the axis range. A browser without variable
+   font support still gets a usable face at the default instance.
+
+   The second src is the same file declared as plain woff2. Browsers disagree
+   about the legacy "woff2-variations" format string; anything that does not
+   recognise it falls through to the second entry and loads the identical file.
+   Both are preloaded in templates/partials/head.php.
+   =========================================================================== */
+
+@font-face {
+    font-family: "Playfair Display";
+    src: url("../fonts/playfairdisplay-var-latinext.woff2") format("woff2-variations"),
+         url("../fonts/playfairdisplay-var-latinext.woff2") format("woff2");
+    font-weight: 400 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Inter";
+    src: url("../fonts/inter-var-latinext.woff2") format("woff2-variations"),
+         url("../fonts/inter-var-latinext.woff2") format("woff2");
+    font-weight: 400 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* ===========================================================================
+   2. :root — tokens
+   =========================================================================== */
+
+:root {
+
+    /* -----------------------------------------------------------------------
+       BRAND COLOURS — PROVISIONAL, PENDING DESIGNER CONFIRMATION.
+
+       Read off the concept brochure and the logo files; treat them as working
+       approximations until the designer confirms the exact values. They are
+       kept in one contiguous block on purpose: confirming the palette is a
+       single edit here and nothing else in the stylesheet changes, because
+       every rule below consumes --bg / --fg / --rule / --accent (§3) and never
+       a brand colour directly.
+       ----------------------------------------------------------------------- */
+
+    /* Majori Green — the daylight heritage colour */
+    --green-900: #123328;   /* darkest grounds */
+    --green-800: #1A4438;   /* the primary brand green */
+    --green-700: #24523F;   /* rules and hovers on dark */
+
+    /*
+       Wine Bordeaux — evening, the club. Confirmed brand values.
+
+       TWO VALUES, AND WHICH ONE YOU WANT DEPENDS ON THE AREA IT COVERS.
+
+       --wine-800 is the brand bordeaux. It is the colour of the thing: the
+       buttons, the seals, the plates, anything small and saturated that is
+       meant to read as Majori Manor bordeaux.
+
+       --wine-900 is that colour darkened, and it exists for one reason. Gold
+       on the brand bordeaux measures 4.57:1 — over the 4.5:1 line, but only
+       just, and a whole night section grounded in it leaves nothing in hand
+       for a rendering difference or a slightly lighter gold. On --wine-900
+       the same gold measures 6.19:1.
+
+       So: large night GROUNDS take --wine-900. Brand bordeaux stays for the
+       small saturated things. The `night` mood below is grounded in -900 and
+       takes -800 for its rules, which is exactly this rule in practice.
+    */
+    --wine-900:  #56151E;   /* night grounds — gold on it is 6.19:1 */
+    --wine-800:  #7B1E2B;   /* brand bordeaux — buttons, seals, plates */
+
+    /*
+       THE GOLD RULE — this is a contrast rule, not a taste rule.
+
+       --gold on --cream measures about 1.9:1. That fails WCAG AA for body
+       text (4.5:1) and fails AA for large text (3:1) as well. So:
+
+         --gold      large display type, rules, the crest, and active states
+                     on DARK grounds only. On --green-800 it measures 4.89:1,
+                     on --wine-900 6.19:1, and on --wine-800 4.57:1 — all
+                     three pass AA, but the last one only just, which is why
+                     night grounds are -900 and not -800. See the wine note.
+                     Dosage: no more than ~3% of the screen (ARCHITECTURE §8.1).
+
+         --gold-ink  the ONLY gold permitted for small text on cream.
+                     On --cream it measures 5.3:1 and passes AA.
+
+       This is why the `day` temperature takes --gold-ink as its accent while
+       `dusk` and `night` take --gold. The accent differing per mood is the
+       fix, not an oversight.
+    */
+    --gold:      #CBA96A;   /* display type / rules / crest — dark grounds only */
+    --gold-ink:  #7A5C24;   /* small text on cream — 5.3:1 */
+    --gold-soft: #E0C894;   /* the lighter gold, dark grounds only */
+
+    /* Cream — the light grounds */
+    --cream:      #F2EDE4;
+    --cream-deep: #E6DFD2;
+
+    /* Text */
+    --ink:      #101511;    /* near-black with a green undertone — 15.8:1 on cream */
+    --ink-soft: #4A5148;    /* secondary text — 7.0:1 on cream */
+
+    /* --- END OF THE PROVISIONAL BRAND BLOCK -------------------------------- */
+
+
+    /* -----------------------------------------------------------------------
+       Type
+       -----------------------------------------------------------------------
+       Both stacks degrade on their own: if a face fails to load the display
+       falls to Prata, then Georgia, and the body to the system UI font.
+       Nothing is fetched from a third party at any point.
+       ----------------------------------------------------------------------- */
+
+    --font-display: "Playfair Display", "Prata", Georgia, serif;
+    --font-body:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /*
+       Scale: base 17px, ratio 1.28, fluid between the breakpoints
+       (ARCHITECTURE §8.3). The 17px base is set as a percentage on <html> in
+       §5 so that a reader who has changed their browser's font size keeps it.
+    */
+    --fs-xs:   clamp(0.72rem, 0.70rem + 0.10vw, 0.78rem);
+    --fs-sm:   clamp(0.84rem, 0.82rem + 0.12vw, 0.92rem);
+    --fs-base: clamp(1.0rem,  0.97rem + 0.16vw, 1.10rem);
+    --fs-lg:   clamp(1.28rem, 1.20rem + 0.38vw, 1.55rem);
+    --fs-xl:   clamp(1.70rem, 1.45rem + 1.10vw, 2.40rem);
+    --fs-2xl:  clamp(2.30rem, 1.85rem + 2.10vw, 3.70rem);
+    --fs-3xl:  clamp(2.90rem, 2.00rem + 4.20vw, 5.80rem);
+
+    /* The brand's uppercase tracking, from the brochure. */
+    --tracking-eyebrow: 0.18em;
+
+    /* The wordmark's own tracking — wider than text, tighter than an eyebrow,
+       because MAJORI MANOR is a lockup and not a line of copy. */
+    --tracking-wordmark: 0.12em;
+
+
+    /* -----------------------------------------------------------------------
+       Space — 4px base
+       -----------------------------------------------------------------------
+       Every step is a multiple of 4. The ramp opens up past step 6 so that one
+       scale covers both the inside of a component and the space between
+       blocks; a strict 4×n ramp would stop at 48px and leave a hole between
+       component padding and --space-section.
+       ----------------------------------------------------------------------- */
+
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-7:  32px;
+    --space-8:  40px;
+    --space-9:  48px;
+    --space-10: 64px;
+    --space-11: 80px;
+    --space-12: 96px;
+
+    /* The vertical rhythm between sections. Set here, applied only by
+       .section (§6) — see the vertical-space rule there. */
+    --space-section: clamp(80px, 12vh, 180px);
+
+
+    /* -----------------------------------------------------------------------
+       Layout
+       ----------------------------------------------------------------------- */
+
+    --wrap-max: 1440px;                     /* the widest the page ever gets */
+    --measure:  34rem;                      /* prose column, 62–72 characters */
+    --gutter:   clamp(16px, 2.4vw, 32px);   /* grid gutter */
+    --pad-x:    clamp(20px, 5vw, 80px);     /* page margin, left and right */
+
+    /* The header bar. One number, and four things read it: the bar's own
+       height, the space <main> leaves for it, the top of the drawer panel and
+       the offset an anchored heading scrolls to. */
+    --header-h: clamp(64px, 7vw, 84px);
+
+
+    /* -----------------------------------------------------------------------
+       Motion — one duration for the temperature change, one for everything
+       else. Both are switched off under prefers-reduced-motion (§7).
+       ----------------------------------------------------------------------- */
+
+    --dur-mood: 600ms;
+    --dur:      300ms;
+    --ease:     ease;
+}
+
+
+/* ===========================================================================
+   3. [data-mood] — colour temperatures
+   ---------------------------------------------------------------------------
+   The whole mechanism (ARCHITECTURE §8.2). Three temperatures on
+   <body data-mood="day|dusk|night">, each defining exactly five variables:
+
+       --bg        the ground
+       --fg        text on that ground
+       --rule      hairlines, borders, dividers
+       --accent    the one accent that is legible on that ground
+       --seal-src  the colourway of the club seal that reads on that ground
+       --seal-ink  the same decision for the small mark, as a colour
+       --danger    the colour a form error is printed in on that ground
+
+   Everything else in this stylesheet reads those seven and nothing else. A
+   component never knows which ground it is standing on, which is what lets
+   the same component sit on cream and on wine without a modifier.
+
+   --danger IS HERE BECAUSE AN ERROR CANNOT BE ONE COLOUR ON THIS SITE. The
+   usual red is a brand colour on cream and invisible on wine, and the
+   membership form stands on --wine-900: a red sentence on a bordeaux ground
+   is a sentence nobody reads. So the ground names it, like everything else in
+   this section — the brand bordeaux on cream at 8.8:1, a light rose on the
+   two dark grounds at 5.1:1 and 8.8:1, all three past AA.
+
+   It is never the only signal. An error is a sentence, tied to its field with
+   aria-describedby, and the field carries aria-invalid; the colour is the
+   third channel and not the message (ARCHITECTURE §16).
+
+   The accent is NOT the same in all three: on cream it is --gold-ink, on the
+   dark grounds it is --gold. See the gold rule in §2.
+
+   --seal-src is the same idea for the club seal, and it is here for the same
+   reason the accent is. The seal is artwork in three fixed colourings, not a
+   shape that can inherit a colour, so the ground names the file: the green
+   mark on cream, the gold one on every dark ground. It is a url() rather than
+   a colour because that is the only way a raster mark can follow a ground —
+   see the note at the top of templates/partials/seal.php.
+
+   --seal-ink IS THE SAME DECISION FOR THE OTHER MARK, AND IT IS A COLOUR
+   BECAUSE THE OTHER MARK IS A VECTOR. This is a two-mark identity: the crest
+   is the large mark and the monogram in assets/img/brand/mark.svg is the small
+   one, which carries every size below 48px where the crest reads as a smudge
+   (§7, .c-seal--sm). That file is drawn in currentColor, so the ground can
+   hand it a colour instead of a file — the same green on cream and gold on
+   dark, arrived at the same way. Both variables are set together everywhere
+   below, so a ground never has one and not the other.
+
+   A few things in the page chrome do not take a temperature from the page, and
+   they are all here rather than among the components, because naming a brand
+   colour is allowed in this section and nowhere below it:
+
+     [data-ground="deep"]   the footer — --green-900 on every page
+     the header over a hero — standing on a photograph, not on a ground
+     the header while the drawer is open — standing on the drawer
+     .c-seal--green/wine/gold  a seal that names its colourway instead of
+                            taking the ground's — the styleguide, mostly
+     .seam                  spans two temperatures at once, so it names both
+   =========================================================================== */
+
+/*
+   The small mark, in one place because it has no colourways: one drawing, and
+   the ground tints it through --seal-ink. Named here rather than in §7 so that
+   every file this stylesheet points at is declared in the same section.
+*/
+:root {
+    --mark-src: url("../img/brand/mark.svg");
+}
+
+/* The default ground, for any page that renders without a data-mood. */
+:root {
+    --bg:       var(--cream);
+    --fg:       var(--ink);
+    --rule:     var(--cream-deep);
+    --accent:   var(--gold-ink);
+    --seal-src: url("../img/brand/crest-green.png");
+    --seal-ink: var(--green-800);
+    --danger:   var(--wine-800);
+}
+
+[data-mood="day"],
+.section--day {
+    --bg:       var(--cream);
+    --fg:       var(--ink);
+    --rule:     var(--cream-deep);
+    --accent:   var(--gold-ink);
+    --seal-src: url("../img/brand/crest-green.png");
+    --seal-ink: var(--green-800);
+    --danger:   var(--wine-800);
+}
+
+[data-mood="dusk"],
+.section--dusk {
+    --bg:       var(--green-800);
+    --fg:       var(--cream);
+    --rule:     var(--green-700);
+    --accent:   var(--gold);
+    --seal-src: url("../img/brand/crest-gold.png");
+    --seal-ink: var(--gold);
+    --danger:   #E8A0A0;
+}
+
+[data-mood="night"],
+.section--night {
+    --bg:       var(--wine-900);
+    --fg:       var(--cream);
+    --rule:     var(--wine-800);
+    --accent:   var(--gold);
+    --seal-src: url("../img/brand/crest-gold.png");
+    --seal-ink: var(--gold);
+    --danger:   #F2C4C4;
+}
+
+/*
+   The footer's ground, and the only one that is not a page temperature.
+
+   The footer is --green-900 on every page whatever the page above it is doing:
+   the site ends there and the estate closes for the night. A footer that
+   changed colour with the page would read as one more section of it.
+*/
+[data-ground="deep"] {
+    --bg:       var(--green-900);
+    --fg:       var(--cream);
+    --rule:     var(--green-700);
+    --accent:   var(--gold);
+    --seal-src: url("../img/brand/crest-gold.png");
+    --seal-ink: var(--gold);
+    --danger:   #E8A0A0;
+}
+
+/*
+   Painting the ground. The mood transition is 600ms so that a temperature
+   change on scroll reads as a dimming rather than a cut; --fg rides along,
+   because a ground that fades while its text snaps looks broken.
+*/
+[data-mood],
+[data-ground],
+.section--day,
+.section--dusk,
+.section--night {
+    background-color: var(--bg);
+    color: var(--fg);
+    transition: background-color var(--dur-mood) var(--ease),
+                color var(--dur-mood) var(--ease);
+}
+
+/*
+   The header standing on a photograph.
+
+   Over a hero the bar has no ground of its own — the hero image is behind it,
+   and every hero on this site is dark. So it takes cream text and the
+   dark-ground gold, whatever temperature the page is running, and gives them
+   back the moment .is-solid arrives and it is standing on the page again.
+
+   .has-js, because the transparent state only exists if something is going to
+   end it. Without a script the header is solid from the first frame and this
+   never matches. See templates/partials/header.php.
+*/
+.has-js .c-header[data-hero]:not(.is-solid) {
+    --fg:       var(--cream);
+    --accent:   var(--gold);
+    --seal-src: url("../img/brand/crest-gold.png");
+    --seal-ink: var(--gold);
+}
+
+/*
+   The header while the drawer is open.
+
+   The panel is --green-800 and it fills the screen, the bar included. Whatever
+   the page's own text colour is, it is not the one to read against that — ink
+   on green is 2.1:1.
+*/
+.is-drawer-open .c-header {
+    --fg:       var(--cream);
+    --accent:   var(--gold);
+    --seal-src: url("../img/brand/crest-gold.png");
+    --seal-ink: var(--gold);
+}
+
+/*
+   A seal that names its own colourway.
+
+   seal('auto') follows the ground and is what nearly every call uses. These
+   three are the escape hatch: the styleguide has to show all three colourings
+   side by side on one ground, which is exactly the thing the ground mechanism
+   is built to prevent. Naming a file here is allowed for the same reason
+   naming a brand colour is allowed in this section and nowhere below it.
+
+   There is no cream seal. The old placeholder had one because it was a shape
+   inheriting a colour and cream was free; the real mark is artwork in three
+   fixed colourings, and on the dark ground the cream variant existed for — the
+   drawer — gold is the colouring that belongs there anyway.
+*/
+.c-seal--green { --seal-src: url("../img/brand/crest-green.png"); --seal-ink: var(--green-800); }
+.c-seal--wine  { --seal-src: url("../img/brand/crest-wine.png");  --seal-ink: var(--wine-800); }
+.c-seal--gold  { --seal-src: url("../img/brand/crest-gold.png");  --seal-ink: var(--gold); }
+
+/*
+   The hero's scrim.
+
+   The first screen is a photograph, and text over a photograph is legible or
+   not depending on what the photographer was pointing at that day. So the hero
+   lays a gradient over it — nothing at the top, the darkest green at the
+   bottom, where the words are — and the copy stops depending on the picture.
+
+   It is here rather than with .c-hero in §7 for the reason everything else in
+   this section is here: it names a brand colour outright. It has to. The scrim
+   is not standing on a ground, it IS the ground, and there is no --bg over a
+   photograph to derive it from.
+
+   The 70% the brief asks for is applied as opacity on the element rather than
+   baked into a colour, which comes out identical — a gradient from alpha 0 to
+   alpha 1 scaled by 0.7 is a gradient from 0 to 0.7 — and needs neither
+   color-mix nor a second copy of the green written out in decimal.
+*/
+:root {
+    --scrim-ink: var(--green-900);
+}
+
+/*
+   The seam — the door between two worlds.
+
+   A ~120px band carrying a gradient from the ground above it to the ground
+   below, used on the home page wherever the temperature changes, with the
+   crest standing in the middle of it — templates/components/seam.php.
+
+   Because a seam belongs to two temperatures at once it cannot be written in
+   terms of --bg, so the direction modifiers name the grounds outright. This
+   is the single place in the stylesheet where that is allowed, and it is here
+   in the mood layer rather than among the components for exactly that reason.
+
+       <div class="seam seam--dusk-night"> … the crest … </div>
+
+   min-block-size rather than height: the band is sized by the brief, but a
+   seal is a real element inside it and a box that is exactly 96px tall with a
+   64px mark in it has nothing left to give if either number moves.
+*/
+.seam {
+    --seam-from: var(--bg);
+    --seam-to:   var(--bg);
+
+    display: grid;
+    place-items: center;
+
+    min-block-size: clamp(96px, 12vw, 120px);
+    background-image: linear-gradient(to bottom, var(--seam-from), var(--seam-to));
+}
+
+.seam--day-dusk   { --seam-from: var(--cream);     --seam-to: var(--green-800); }
+.seam--dusk-day   { --seam-from: var(--green-800); --seam-to: var(--cream); }
+.seam--dusk-night { --seam-from: var(--green-800); --seam-to: var(--wine-900); }
+.seam--night-dusk { --seam-from: var(--wine-900);  --seam-to: var(--green-800); }
+.seam--day-night  { --seam-from: var(--cream);     --seam-to: var(--wine-900); }
+.seam--night-day  { --seam-from: var(--wine-900);  --seam-to: var(--cream); }
+
+
+/* ===========================================================================
+   4. reset
+   =========================================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+h1, h2, h3, h4, h5, h6,
+p,
+figure,
+blockquote,
+dl, dd,
+ul, ol,
+fieldset,
+legend {
+    margin: 0;
+    padding: 0;
+}
+
+/*
+   A list that is structure rather than a bulleted list — the navigation, a
+   row of cards — loses its markers. A list that really is a list keeps them;
+   see §5, which selects on :not([class]).
+
+   Safari stops announcing a list once list-style is none, so any classed list
+   that a reader should still hear as a list needs role="list" in the markup.
+*/
+ul[class],
+ol[class] {
+    list-style: none;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Form controls inherit the page's type instead of the operating system's. */
+button,
+input,
+optgroup,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+html {
+    scroll-behavior: smooth;
+
+    /* Anchored targets clear the fixed header instead of hiding behind it. */
+    scroll-padding-top: calc(var(--header-h) + var(--space-4));
+}
+
+/* Tables, when the legal pages need one. */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+/* ===========================================================================
+   5. base typography — bare elements, no classes
+   ---------------------------------------------------------------------------
+   Unstyled HTML in this project should already look like the brand. A
+   template that has to reach for a class to get correct type is a template
+   that will be wrong somewhere.
+   =========================================================================== */
+
+html {
+    /* 17px base (17 ÷ 16). A percentage rather than a pixel value, so a
+       reader who has enlarged their default font size keeps the enlargement. */
+    font-size: 106.25%;
+
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    font-weight: 400;
+    line-height: 1.65;
+
+    background-color: var(--bg);
+    color: var(--fg);
+
+    /* Long unbroken strings — an address, a URL in the legal pages — wrap
+       instead of pushing the page sideways at 360px. */
+    overflow-wrap: break-word;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Headings -------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-3xl); line-height: 1.04; letter-spacing: -0.015em; }
+h2 { font-size: var(--fs-2xl); line-height: 1.08; letter-spacing: -0.012em; }
+h3 { font-size: var(--fs-xl);  line-height: 1.14; letter-spacing: -0.008em; }
+h4 { font-size: var(--fs-lg);  line-height: 1.22; }
+h5 { font-size: var(--fs-base); line-height: 1.30; }
+h6 { font-size: var(--fs-sm);  line-height: 1.35; }
+
+/* --- Copy ------------------------------------------------------------------ */
+
+/*
+   No margins on paragraphs, by design. Vertical rhythm inside a block is
+   .stack's job and the space between blocks is .section's; see the vertical
+   space rule in §6. A prose column is .measure + .stack.
+*/
+p {
+    text-wrap: pretty;
+}
+
+strong, b { font-weight: 500; }
+
+small { font-size: var(--fs-sm); }
+
+/* --- Links ----------------------------------------------------------------- */
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: text-decoration-color var(--dur) var(--ease),
+                color var(--dur) var(--ease);
+}
+
+a:hover {
+    text-decoration-color: var(--accent);
+}
+
+/* --- Lists ----------------------------------------------------------------- */
+
+ul:not([class]),
+ol:not([class]) {
+    padding-left: var(--space-5);
+}
+
+/* --- Rules and quotes ------------------------------------------------------ */
+
+hr {
+    height: 0;
+    border: 0;
+    border-top: 1px solid var(--rule);
+}
+
+blockquote {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.35;
+}
+
+/* --- Selection ------------------------------------------------------------- */
+
+::selection {
+    background-color: var(--accent);
+    color: var(--bg);
+}
+
+/* --- Focus ----------------------------------------------------------------- */
+
+/*
+   Never removed, on anything, for any reason. The accent is guaranteed
+   legible on whichever ground the element is standing on, because it is the
+   ground's own accent.
+*/
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/*
+   <main tabindex="-1"> is the skip link's target and it draws the ring too.
+   That is on purpose: a reader who has just jumped needs to see where they
+   landed, and this is the one focus outline it would be tempting to remove.
+*/
+
+
+/* ===========================================================================
+   6. layout primitives
+   ---------------------------------------------------------------------------
+   Five classes, and between them they place everything on the page.
+
+   THE VERTICAL SPACE RULE: the space between blocks is defined by .section
+   and by nothing else. Components carry no outer margin. This is what stops
+   the usual argument between a section's padding and a component's margin.
+   Space *inside* a block is .stack's.
+
+   Section-level temperature overrides (.section--day / --dusk / --night) live
+   in §3 with the rest of the mood system.
+   =========================================================================== */
+
+/* --- .wrap — the page band ------------------------------------------------- */
+
+.wrap {
+    width: 100%;
+    max-width: var(--wrap-max);
+    margin-inline: auto;
+    padding-inline: var(--pad-x);
+}
+
+/* --- .grid — 12 columns ---------------------------------------------------- */
+
+/*
+   One column up to 768px, twelve from there up. Children set their own
+   grid-column; they are placed with the components, not here.
+
+   minmax(0, 1fr) rather than 1fr: a bare 1fr floors at the content's minimum
+   width, which is how a long word in a narrow column ends up scrolling the
+   whole page sideways at 360px.
+*/
+.grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gutter);
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+}
+
+/* --- .stack — vertical rhythm inside a block ------------------------------- */
+
+/*
+   Space between children, never before the first or after the last. The size
+   is a custom property, so a block tightens or opens up without a modifier:
+
+       <div class="stack" style="--stack-space: var(--space-3)">
+
+   Set it on the .stack itself or on any ancestor; the fallback is --space-6.
+*/
+.stack > * + * {
+    margin-block-start: var(--stack-space, var(--space-6));
+}
+
+/* --- .section — the only source of vertical space between blocks ----------- */
+
+.section {
+    padding-block: var(--space-section);
+}
+
+/* --- .measure — the prose column ------------------------------------------- */
+
+.measure {
+    max-width: var(--measure);
+}
+
+/* --- The page column ------------------------------------------------------- */
+
+/*
+   The footer ends the page, not the content.
+
+   A short page — a placeholder, the 404 — would otherwise leave a band of the
+   page's own ground below the footer, which reads as a second footer that
+   forgot to have anything in it. Three lines of flex put the footer on the
+   bottom of the window instead, and change nothing on a page that is already
+   taller than one.
+*/
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+
+/* --- <main> and the fixed header ------------------------------------------- */
+
+/*
+   The header is taken out of the flow, so the content has to leave room for
+   it. Except on a page that opens with a hero: there the hero runs underneath
+   a transparent bar, which is the whole point of it.
+
+   Both rules are inside .has-js because the header is only fixed when there is
+   a script — see .c-header in §7. Without one it stands in the flow like any
+   other element and nothing has to be reserved.
+*/
+.has-js main {
+    padding-block-start: var(--header-h);
+}
+
+.has-js [data-hero] main {
+    padding-block-start: 0;
+}
+
+/*
+   Body scroll lock, for the drawer and for the lightbox.
+
+   Fixing <body> is the only thing that reliably stops the page behind a
+   full-screen panel from scrolling on iOS; overflow: hidden does not. The cost
+   is that a fixed body forgets where it was, so main.js writes the scroll
+   position into inline `top` here and scrolls back to it on close.
+
+   Its own class rather than .is-drawer-open, because two things now lock the
+   page and only one of them is the drawer. .is-drawer-open still exists and
+   still means the drawer specifically — it is what gives the header the
+   panel's colours in §3.
+*/
+body.is-scroll-locked {
+    position: fixed;
+    inset-inline: 0;
+    width: 100%;
+}
+
+
+/* ===========================================================================
+   7. components
+   ---------------------------------------------------------------------------
+   The page chrome: header, navigation, drawer, footer, seal, button.
+
+   Every one of them reads --bg, --fg, --rule and --accent and never a brand
+   colour, so the same component stands on cream, on green and on wine with no
+   modifier and no second version. The handful of things that genuinely cannot
+   work that way are in §3, named there and nowhere else.
+
+   No outer margins. The space between blocks belongs to .section and the space
+   inside one to .stack — see the vertical space rule in §6. What a component
+   has is padding.
+   =========================================================================== */
+
+
+/* --- .c-btn — the one button ----------------------------------------------- */
+
+/*
+   Two states, and both of them are one border and one fill apart:
+
+     .c-btn--primary   filled with the accent, text in the ground colour
+     .c-btn--outline   the accent as a hairline, filled on hover
+
+   --bg as the text colour of a filled button is what keeps it legible on all
+   three temperatures: gold-ink filled with cream text on day, gold filled with
+   green on dusk, gold filled with wine on night. All three pass AA.
+*/
+.c-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 44px is the smallest comfortable target, and it is a floor, not a size:
+       a long label makes the button taller rather than clipping. */
+    min-height: 44px;
+    padding: var(--space-3) var(--space-6);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+
+    /* Tracking leaves a space after the last letter too, which throws a
+       centred label half a letter-space to the left. Push it back. */
+    text-indent: var(--tracking-eyebrow);
+
+    background-color: transparent;
+    color: inherit;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    transition: background-color var(--dur) var(--ease),
+                color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.c-btn--primary {
+    background-color: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.c-btn--outline {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* The two states trade places on hover, so the pair reads as one control. */
+.c-btn--primary:hover {
+    background-color: transparent;
+    color: var(--accent);
+}
+
+.c-btn--outline:hover {
+    background-color: var(--accent);
+    color: var(--bg);
+}
+
+
+/* --- .c-seal — the crest --------------------------------------------------- */
+
+/*
+   An empty <span> printed by templates/partials/seal.php, carrying the mark as
+   a background image. Three sizes, three colourings — see ARCHITECTURE §8.5
+   and the note at the top of that partial.
+
+   THE MARK IS ARTWORK, SO IT CANNOT INHERIT A COLOUR. The old placeholder was
+   a shape and took currentColor; the real seal is a fine-line engraving with
+   white detail cut into the ink, supplied in three fixed colourings. What
+   replaces currentColor is --seal-src, set by the ground in §3, so a seal
+   still follows the temperature it stands on without being told which one it
+   is. .c-seal--green/wine/gold override it; .c-seal--auto simply does not.
+
+   background-image rather than <img> for exactly that reason: an <img src> is
+   fixed in the markup and the ground cannot swap it.
+
+   The seal is the one background image on this site that is content rather
+   than decoration, so it keeps its ink when a page is printed. Everything else
+   is allowed to drop out.
+*/
+.c-seal {
+    display: inline-block;
+    flex: none;
+    inline-size: var(--seal-size, 64px);
+    block-size: var(--seal-size, 64px);
+
+    background-image: var(--seal-src);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+.c-seal--sm { --seal-size: 32px; }
+.c-seal--md { --seal-size: 64px; }
+.c-seal--lg { --seal-size: 140px; }
+
+/*
+   THE SMALL SIZE IS THE OTHER MARK.
+
+   Majori Manor has two marks, not a mark and a stand-in. The crest is a
+   fine-line engraving — twenty letters around two rings and a facade with its
+   own reflection — and it is legible from 48px up. At 32px it is a grey disc.
+   So --sm is not the crest scaled down: it is assets/img/brand/mark.svg, the
+   monogram in the double circle, drawn at weights that survive 16px. The same
+   division runs through the icons: mark at 16 and 32, crest at 48 and above
+   (tools/brand/README.md).
+
+   IT IS A MASK RATHER THAN AN IMAGE because it is the one part of the identity
+   that is a real vector. A mask reads alpha and takes its colour from the
+   element, so the small mark follows the ground through --seal-ink exactly as
+   the crest follows it through --seal-src, and one file serves all three
+   colourways instead of three.
+
+   Behind @supports on purpose: a browser with no mask support keeps the crest
+   it has been getting until now, which is small but correct. What it must
+   never get is background-color with no mask over it — a solid gold disc.
+*/
+@supports (mask-image: url("../img/brand/mark.svg")) or (-webkit-mask-image: url("../img/brand/mark.svg")) {
+
+    .c-seal--sm {
+        background-image: none;
+        background-color: var(--seal-ink);
+
+        -webkit-mask-image: var(--mark-src);
+                mask-image: var(--mark-src);
+        -webkit-mask-position: center;
+                mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+                mask-repeat: no-repeat;
+        -webkit-mask-size: contain;
+                mask-size: contain;
+    }
+}
+
+/* .c-seal--green/wine/gold are in §3: naming a file is a ground decision. */
+
+
+/* --- .c-header — the bar --------------------------------------------------- */
+
+/*
+   Fixed, full width, above everything except the skip link.
+
+   Solid is the default state and the transparent one is the exception, which
+   is the right way round: a header that fails to a solid ground is readable
+   everywhere, and one that fails to transparent is cream text on a photograph
+   that is not there.
+
+   position: static without a script, and fixed with one. A fixed bar needs
+   <main> to reserve exactly its height, and below 1180px without JS the
+   navigation stays on screen and wraps onto a second line — so its height is
+   no longer a number anything can reserve. In the flow it simply takes the
+   room it needs.
+*/
+.c-header {
+    position: static;
+    z-index: 50;
+
+    background-color: var(--bg);
+    color: var(--fg);
+    border-block-end: 1px solid var(--rule);
+
+    transition: background-color var(--dur) var(--ease),
+                color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.has-js .c-header {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+}
+
+/* Over a hero: no ground, no hairline. §3 gives it cream text to go with. */
+.has-js .c-header[data-hero]:not(.is-solid) {
+    background-color: transparent;
+    border-block-end-color: transparent;
+}
+
+/* While the drawer is open the bar lets the panel show through it. */
+.is-drawer-open .c-header {
+    background-color: transparent;
+    border-block-end-color: transparent;
+}
+
+/*
+   THE BAR HAS TO FIT ON ONE LINE AT 1180px.
+
+   1180 is where the drawer stops and the whole navigation appears, and it is
+   the tightest the bar ever is: seven labels, the wordmark and MEMBERSHIP in
+   1060px of usable width. If it does not fit it wraps onto a second row, the
+   bar becomes taller than --header-h, and <main> — which reserves exactly
+   --header-h — ends up underneath it.
+
+   So the three things that take the room are elastic between 1180 and 1440:
+   the wordmark, the gaps, and the navigation's own type.
+
+   THE BREAKPOINT WAS 1024 AND IS NOW 1180, which buys the bar 156px it did
+   not have. Measured in Chrome, bar forced visible, fonts settled:
+
+                      narrowest bar    spare @1180  @1280  @1440
+     English            933px            174px      222px  299px
+     Latvian, natural   864px            232px      281px  360px
+     Latvian, verbose  1287px            -42px       -3px   59px
+
+   One caveat worth keeping, because it is the opposite of what was assumed
+   when this was raised: NATURAL LATVIAN IS THE SHORTER LANGUAGE HERE, not the
+   longer one. English spends two labels on an article — THE ESTATE, THE CLUB
+   — and Latvian has no articles to spend: MUIŽA, KLUBS. Only PASĀKUMI and
+   KONTAKTI grow. The net is a Latvian bar that fits in 864px where English
+   needs 933px, so the old 1024 breakpoint would in fact have survived it.
+
+   What 1180 does NOT survive is a verbose label set — MUIŽAS KOMPLEKSS for
+   the estate, KĻŪT PAR BIEDRU for membership. That wants 1287px and wraps at
+   both 1180 and 1280. If the Latvian copy comes back in that register the
+   answer is shorter labels, not a third breakpoint: 1287 is past most
+   laptops.
+
+   Re-measure here if a label changes. The bar wrapping is not a cosmetic
+   failure — <main> reserves exactly --header-h and ends up underneath it.
+*/
+.c-header__inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3) clamp(var(--space-4), 1.8vw, var(--space-7));
+
+    width: 100%;
+    max-width: var(--wrap-max);
+
+    /* Less the hairline below it, so the bar is exactly --header-h tall from
+       edge to edge. Four other things reserve that number and all four would
+       otherwise be one pixel short. */
+    min-height: calc(var(--header-h) - 1px);
+
+    margin-inline: auto;
+    padding-block: var(--space-3);
+    padding-inline: var(--pad-x);
+}
+
+/*
+   The wordmark. A text lockup, not an image — see the note in header.php.
+   z-index keeps it above the drawer panel, which is a sibling that covers the
+   whole screen; the bar has to stay legible on top of it.
+*/
+.c-header__wordmark {
+    position: relative;
+    z-index: 2;
+
+    margin-inline-end: auto;
+
+    font-family: var(--font-display);
+    font-size: clamp(0.95rem, 0.55rem + 0.6vw, 1.15rem);
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wordmark);
+    white-space: nowrap;
+}
+
+/* The single accent action. Set apart from the navigation, never in it. */
+.c-header__action {
+    min-height: 40px;
+    padding-block: var(--space-2);
+    padding-inline: clamp(var(--space-4), 1.4vw, var(--space-6));
+}
+
+
+/* --- .c-nav — the horizontal navigation ------------------------------------ */
+
+.c-nav__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2) clamp(var(--space-3), 1.35vw, var(--space-6));
+}
+
+.c-nav__link {
+    display: inline-block;
+    padding-block: var(--space-2);
+
+    /* Its own step rather than --fs-xs: the bar is the one place on the site
+       where the type has to give way to fit, and it gives way here. */
+    font-size: clamp(0.66rem, 0.30rem + 0.55vw, 0.78rem);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+
+    transition: color var(--dur) var(--ease);
+}
+
+.c-nav__link:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.5em;
+}
+
+/* Where you are. Colour rather than a rule: the bar is 1px of hairlines
+   already and one more line in it reads as a border, not as a state. */
+.c-nav__link[aria-current="page"] {
+    color: var(--accent);
+}
+
+
+/* --- .c-drawer — the mobile navigation ------------------------------------- */
+
+/*
+   Off by default, at every width. It is switched on only below 1180px and only
+   when there is a script to open it: a button that opens nothing is worse than
+   a navigation that looks cramped, and without JS the horizontal navigation
+   stays on screen instead and wraps.
+*/
+.c-drawer,
+.c-drawer__toggle {
+    display: none;
+}
+
+@media (max-width: 1179.98px) {
+
+    .has-js .c-nav,
+    .has-js .c-header__action {
+        display: none;
+    }
+
+    .has-js .c-drawer {
+        display: block;
+    }
+
+    .has-js .c-drawer__toggle {
+        display: inline-flex;
+    }
+}
+
+/*
+   The panel. Fixed to the viewport rather than to the header it is written
+   inside, so it covers the page; z-index below the wordmark and the button, so
+   the bar stays on top of it and the button that opened it can close it.
+
+   visibility rather than display, so the state can be transitioned — and it is
+   real hiding, not a transparent panel: nothing inside a visibility: hidden
+   element can be reached with the Tab key.
+*/
+.c-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-1rem);
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    transition: opacity var(--dur) var(--ease),
+                transform var(--dur) var(--ease),
+                visibility var(--dur) var(--ease);
+}
+
+.c-drawer.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+}
+
+.c-drawer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-7);
+
+    min-block-size: 100%;
+    padding-block: calc(var(--header-h) + var(--space-7)) var(--space-9);
+    padding-inline: var(--pad-x);
+    text-align: center;
+}
+
+.c-drawer__nav {
+    width: 100%;
+}
+
+.c-drawer__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.c-drawer__link {
+    display: inline-block;
+    padding-block: var(--space-1);
+
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.c-drawer__link[aria-current="page"] {
+    color: var(--accent);
+}
+
+/* MEMBERSHIP, full width, at the bottom — auto margin pins it there however
+   short the list above it is. */
+.c-drawer__action {
+    width: 100%;
+    margin-block-start: auto;
+}
+
+/*
+   The button. 44×44 is the hit area; the bars inside it are 22px wide, so the
+   target is comfortably larger than the mark it draws.
+*/
+.c-drawer__toggle {
+    position: relative;
+    z-index: 2;
+
+    align-items: center;
+    justify-content: center;
+
+    inline-size: 44px;
+    block-size: 44px;
+
+    /* Pulls the optical edge of the bars out to the page margin. */
+    margin-inline-end: calc(var(--space-3) * -1);
+    padding: 0;
+
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+}
+
+.c-drawer__bars,
+.c-drawer__bars::before,
+.c-drawer__bars::after {
+    display: block;
+    inline-size: 22px;
+    block-size: 1px;
+    background-color: currentColor;
+    transition: transform var(--dur) var(--ease),
+                background-color var(--dur) var(--ease);
+}
+
+.c-drawer__bars {
+    position: relative;
+}
+
+.c-drawer__bars::before,
+.c-drawer__bars::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+}
+
+.c-drawer__bars::before { inset-block-start: -6px; }
+.c-drawer__bars::after  { inset-block-start: 6px; }
+
+/* Open: the middle bar goes, the other two cross. */
+[aria-expanded="true"] .c-drawer__bars {
+    background-color: transparent;
+}
+
+[aria-expanded="true"] .c-drawer__bars::before {
+    transform: translateY(6px) rotate(45deg);
+}
+
+[aria-expanded="true"] .c-drawer__bars::after {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+
+/* --- .c-footer — the end of the page --------------------------------------- */
+
+/*
+   One centred column on --green-900, on every page. The ground comes from
+   data-ground="deep" in §3; nothing here knows what colour it is standing on.
+*/
+.c-footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+
+    padding-block: var(--space-11) var(--space-9);
+    text-align: center;
+}
+
+.c-footer__wordmark {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: 500;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wordmark);
+
+    /* Take back the letter-space that tracking adds after the last letter,
+       or the lockup sits half a letter left of centre. */
+    margin-inline-end: calc(var(--tracking-wordmark) * -1);
+}
+
+/*
+   PRIVATE ESTATE & MEMBERS' CLUB.
+
+   It fits on one line down to 360px. If a longer translation does not, balance
+   splits it into two even lines instead of leaving one word stranded.
+*/
+.c-footer__tagline {
+    text-wrap: balance;
+}
+
+.c-footer__location {
+    font-size: var(--fs-sm);
+}
+
+/*
+   The row tightens as the window narrows so that all four links hold one line
+   down to 360px. They wrap if a translation is longer — but a wrapped line
+   starts with an interpunct hanging off the front of it, which is exactly the
+   awkward break the row is worth this much trouble to avoid.
+*/
+.c-footer__links {
+    --link-gap: clamp(var(--space-2), 1.6vw, var(--space-4));
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: var(--space-2) var(--link-gap);
+
+    font-size: var(--fs-sm);
+}
+
+.c-footer__links li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--link-gap);
+}
+
+/* The interpunct between links, drawn rather than written: it is punctuation
+   between items, not a word anybody should have to translate. */
+.c-footer__links li + li::before {
+    content: "·";
+    opacity: 0.55;
+}
+
+.c-footer__contact {
+    font-size: var(--fs-sm);
+}
+
+.c-footer__members {
+    margin-block-start: var(--space-5);
+}
+
+
+/* --- .c-img — every photograph, and every one that is not here yet --------- */
+
+/*
+   THE WRAPPER HOLDS THE SHAPE, THE FILE FILLS IT.
+
+   --img-ratio comes from the content through img(), and it is on the wrapper
+   rather than on the image because the wrapper is the thing that has to keep
+   its shape when there is no image at all. An export that turns out to be 4:3
+   in a 3:2 slot is cropped by object-fit; it does not get to move the page.
+
+   Which is what makes the placeholder below honest: it is the same box, the
+   same width, the same height, standing in exactly the space the photograph
+   will take. Dropping the file in later changes what is inside the box and
+   nothing about the page around it.
+*/
+.c-img {
+    position: relative;
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: var(--img-ratio, 3 / 2);
+    overflow: hidden;
+    background-color: var(--bg);
+}
+
+.c-img picture {
+    display: block;
+    block-size: 100%;
+}
+
+.c-img img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+
+/*
+   No file on disk — which is every image on the site today.
+
+   A hatch in --rule over --bg: visible enough that a gap is obvious at a
+   glance, quiet enough that a page of them can still be read for layout. It
+   takes the ground's own two colours, so it is cream-on-cream by day and
+   wine-on-wine at night and never a grey box borrowed from somewhere else.
+
+   The note inside it is DEV only — img() does not print it in production, and
+   there is nothing here that would show a filename to a visitor.
+*/
+.c-img[data-empty] {
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--rule);
+
+    background-image: repeating-linear-gradient(
+        45deg,
+        var(--rule) 0,
+        var(--rule) 1px,
+        transparent 1px,
+        transparent 9px
+    );
+}
+
+/* A small plate, so the name reads over the hatch rather than through it. */
+.c-img__note {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+
+    max-inline-size: calc(100% - var(--space-6));
+    padding: var(--space-2) var(--space-3);
+
+    background-color: var(--bg);
+
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: var(--fs-xs);
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0.65;
+}
+
+.c-img__widths {
+    opacity: 0.7;
+}
+
+
+/* --- .c-hero — the first screen -------------------------------------------- */
+
+/*
+   A photograph the height of the window, a scrim over it, four lines in the
+   middle and a hairline at the bottom. ARCHITECTURE §10.
+
+   min(100svh, 900px), and both halves of that are load-bearing.
+
+   svh rather than vh: on a phone the small viewport is the one that is
+   actually visible with the browser's chrome showing, and 100vh is the LARGE
+   viewport — the height the page gets once the address bar has scrolled away.
+   A hero at 100vh is therefore one address bar taller than the screen it is
+   sitting on, which crops the bottom of it and hides the scroll cue behind
+   the very chrome the cue is telling you to scroll past. 100vh stays as the
+   line above for a browser that has never heard of svh.
+
+   And 900px, because a hero is a picture and not a wall: on a tall desktop
+   window 100svh keeps going past the point where the composition holds and
+   the two actions end up a long way from the title they belong to.
+*/
+.c-hero {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    min-block-size: 100vh;
+    min-block-size: min(100svh, 900px);
+
+    /* The image is stretched to the box and will not be allowed past it. */
+    overflow: hidden;
+}
+
+/* The photograph, filling the box whatever shape the file turns out to be. */
+.c-hero__media {
+    position: absolute;
+    inset: 0;
+}
+
+/*
+   In the page a .c-img is a box of a fixed ratio that a picture fills. Here it
+   is the other way round: the box is the window and the ratio is whatever is
+   left over, so the wrapper's aspect-ratio is switched off and it is told to
+   fill instead. object-fit: cover on the <img> is already doing the cropping.
+*/
+.c-hero .c-img {
+    block-size: 100%;
+    aspect-ratio: auto;
+}
+
+/*
+   The hero with no photograph in it yet, which is today.
+
+   Everywhere else the placeholder's name sits in the middle of the box it is
+   standing in for, which is where the eye goes. Here the middle of the box is
+   the <h1>, and a filename printed across the title is unreadable in both
+   directions. So in this one place it moves to the top, clear of the header
+   above it and of the words below it. There is nothing in the box in
+   production — img() prints the note only in DEV — and the alignment is
+   harmless when it is empty.
+*/
+.c-hero .c-img[data-empty] {
+    align-items: start;
+    padding-block-start: calc(var(--header-h) + var(--space-4));
+}
+
+/*
+   The scrim. Nothing at the top, --scrim-ink at the bottom, at 70% — see the
+   note beside --scrim-ink in §3 for why the alpha is opacity here.
+
+   A pseudo-element rather than a div: it is a wash over a picture and there is
+   nothing in it to read.
+*/
+.c-hero__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image: linear-gradient(to bottom, transparent, var(--scrim-ink));
+    opacity: 0.7;
+}
+
+/*
+   A NIGHT HERO'S SCRIM IS WINE, BECAUSE THE GROUND IT IS STANDING ON IS.
+
+   --scrim-ink is green-900 on :root and that is right for every hero that
+   opens onto a dusk page. /after-dark opens onto wine, and green-900 washed
+   over the bottom of its first screen puts a green cast exactly where the
+   title is — the one page whose whole argument is a single unbroken ground.
+
+   It is written here rather than in the mood layer on purpose: §3 gives each
+   temperature six variables and only six, and a seventh added there would be
+   carried by every night section on the site to pay for one element on one
+   page. This is the hero's own override of its own scrim, in the hero's own
+   block, and nothing outside .c-hero can see it.
+*/
+.c-hero.section--night {
+    --scrim-ink: var(--wine-900);
+}
+
+/*
+   The words. The top padding clears the header, which is transparent and
+   standing on this same photograph, so the stack is optically centred in what
+   is left rather than in the whole box.
+*/
+.c-hero__inner {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding-block: calc(var(--header-h) + var(--space-9)) var(--space-12);
+    text-align: center;
+}
+
+/*
+   THE SPACE UNDER THE TITLE IS NOT THE SPACE ABOVE IT.
+
+   h1 runs at line-height 1.04, which leaves a display face almost no room
+   below its own baseline — and the line under it is JŪRMALA · LATVIA, in
+   caps, which has no descenders of its own to hold it off. At an even gap the
+   J and the ū of Jūrmala in the title sat on top of it. So the gap below the
+   title is two steps larger than the gap above it, and it is a measured
+   correction rather than taste.
+*/
+.c-hero__title {
+    max-inline-size: 14ch;
+    margin-block-start: var(--space-6);
+}
+
+.c-hero__location {
+    margin-block-start: var(--space-8);
+}
+
+.c-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4) var(--space-8);
+
+    margin-block-start: var(--space-9);
+}
+
+/*
+   The second action, and deliberately not a second button. Two buttons side by
+   side ask a reader to choose; a button and a line of text tell them which one
+   is the way on and leave the other where it can be found.
+*/
+.c-hero__quiet {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.5em;
+
+    transition: color var(--dur) var(--ease);
+}
+
+.c-hero__quiet:hover {
+    color: var(--accent);
+}
+
+/*
+   The scroll cue: 1px of accent, 48px tall, drawing itself down and leaving
+   again every two and a half seconds.
+
+   The line is centred with the `translate` property and animated with
+   `transform`, which are two different properties and therefore do not fight:
+   the centring survives every frame of the scale. Doing both in one transform
+   would mean repeating translate(-50%) in all six keyframes.
+
+   Switched off entirely under prefers-reduced-motion — see the block at the
+   foot of this file, which is also where the reason is.
+*/
+.c-hero__cue {
+    position: absolute;
+    inset-block-end: var(--space-8);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+
+    inline-size: 1px;
+    block-size: 48px;
+
+    background-color: var(--accent);
+
+    animation: c-hero-cue 2.5s var(--ease) infinite;
+}
+
+@keyframes c-hero-cue {
+    0%   { transform: scaleY(0); transform-origin: top;    opacity: 0; }
+    15%  { transform: scaleY(0); transform-origin: top;    opacity: 1; }
+    45%  { transform: scaleY(1); transform-origin: top;    opacity: 1; }
+    55%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+    85%  { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+}
+
+
+/*
+   .c-hero--page — the same first screen, made an opening instead of an
+   arrival. templates/components/hero.php has the reasoning; this is the whole
+   of the difference in CSS, and it is three declarations.
+
+   min(62svh, 620px) by the same argument as the full one: svh because the
+   small viewport is the one a phone actually shows, and a cap because past it
+   the band stops being a header and starts being a wall. 62 is the number at
+   which the first paragraph of the page below is on screen at 390 x 844 —
+   which is the point of the shorter hero and the reason it is not 70.
+*/
+.c-hero--page {
+    min-block-size: 62vh;
+    min-block-size: min(62svh, 620px);
+}
+
+/*
+   Symmetrical below, unlike the full hero: there is no scroll cue standing in
+   the bottom of this one, so the space that was clearing it would read as the
+   stack having slipped upwards. The top still clears the header, which is
+   transparent and standing on the same photograph.
+*/
+.c-hero--page .c-hero__inner {
+    padding-block: calc(var(--header-h) + var(--space-10)) var(--space-8);
+}
+
+/*
+   THE PLACEHOLDER'S NAME LOSES ITS SECOND LINE HERE, and the words below it
+   move down to make room for the first.
+
+   The name is printed at the top of an empty hero rather than in the middle
+   of it because the middle is the <h1> — see .c-hero .c-img[data-empty]
+   above. That works at 900px, where the centred stack starts a long way down.
+   Take 340px out of the band and the stack rises into the note: at 390 the
+   ladder line lands across THE MANOR HOUSE, which is the same unreadability
+   in the other direction.
+
+   So in this variant the ladder goes and the name stays. Losing it costs
+   nothing that cannot be read two lines further down the content file, and it
+   halves the height of the one thing standing where the words want to be. The
+   inner's top padding then clears what is left. DEV only, both of them:
+   img() prints no note at all in production and this space goes back to the
+   photograph.
+*/
+.c-hero--page .c-img[data-empty] .c-img__widths {
+    display: none;
+}
+
+/*
+   The title, four characters wider than the home page's.
+
+   14ch is a poster measure and it is right for "A private world in Jūrmala",
+   which is a phrase. A page title is a sentence — "The historic heart of
+   Majori Manor" — and at 14ch it stacks into four short lines that read as a
+   list. 20ch balances it onto two on a desktop and lets the phone break it
+   where it likes, which is the only place it has room to.
+*/
+.c-hero--page .c-hero__title {
+    max-inline-size: 20ch;
+}
+
+/*
+   The lede. Body face at --fs-lg, and held to 46ch rather than --measure:
+   this line is centred, and a centred sentence 34rem wide breaks into four
+   ragged lines under a title that is 14ch. It is one sentence, so the measure
+   is doing typesetting rather than protecting a paragraph.
+*/
+.c-hero__lede {
+    max-inline-size: 46ch;
+    margin-block-start: var(--space-6);
+
+    font-size: var(--fs-lg);
+    line-height: 1.5;
+}
+
+
+/* --- .c-more — the one link out of a block --------------------------------- */
+
+/*
+   Not a button. A chapter is a narrative and the way out of it is a line of
+   text with a hairline under it — the same weight as the eyebrow above the
+   heading, and deliberately the loudest thing in the block after the heading
+   itself. The rule is --rule at rest and --accent under the cursor, which is
+   the whole of the state change.
+*/
+.c-more {
+    display: inline-block;
+    padding-block-end: var(--space-2);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    line-height: 1.25;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+
+    border-block-end: 1px solid var(--rule);
+
+    transition: color var(--dur) var(--ease),
+                border-color var(--dur) var(--ease);
+}
+
+.c-more:hover {
+    color: var(--accent);
+    border-block-end-color: var(--accent);
+}
+
+
+/* --- .c-chapter — the block of the home page ------------------------------- */
+
+/*
+   Text and photograph, mirrored on alternate chapters, with the image running
+   past the text column to the edge of the page.
+
+   "The edge of the page" is the band, not the viewport: past 1440px the wrap
+   stops and so does the image, because that is where the page itself stops.
+   Below 1180 the two stack and the image goes edge to edge — the negative
+   margin is exactly --pad-x, so it cancels the wrap's padding and nothing
+   overflows at 360.
+*/
+.c-chapter__number {
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+}
+
+.c-chapter__text > * + * {
+    margin-block-start: var(--space-4);
+}
+
+.c-chapter__text > .c-chapter__lede {
+    margin-block-start: var(--space-5);
+}
+
+.c-chapter__text > .c-chapter__more {
+    margin-block-start: var(--space-7);
+}
+
+.c-chapter__figure {
+    margin-block-start: var(--space-9);
+    margin-inline: calc(var(--pad-x) * -1);
+}
+
+@media (min-width: 1180px) {
+
+    .c-chapter__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+        gap: clamp(var(--space-7), 4vw, var(--space-11));
+        align-items: center;
+    }
+
+    .c-chapter__text {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    .c-chapter__figure {
+        grid-row: 1;
+        grid-column: 2;
+
+        margin-block-start: 0;
+        margin-inline: 0 calc(var(--pad-x) * -1);
+    }
+
+    /* The mirror. Odd chapters read left to right, even ones right to left. */
+    .c-chapter--flip .c-chapter__text {
+        grid-column: 2;
+    }
+
+    .c-chapter--flip .c-chapter__figure {
+        grid-column: 1;
+        margin-inline: calc(var(--pad-x) * -1) 0;
+    }
+}
+
+
+/* --- .c-daytimeline — A Day at Majori Manor -------------------------------- */
+
+/*
+   Six hours down a hairline, and one line at the bottom.
+
+   THE RULE IS DRAWN ON THE ROWS, NOT ON THE LIST. It has to be: above 1024px
+   the six split into two columns, and a border on the list would draw one line
+   down the left of the whole block while the second column floated free of it.
+   On the rows it runs continuously inside each column — which is why the rows
+   are spaced with padding and never with a gap, since a gap is a hole in the
+   line.
+*/
+.c-daytimeline__head {
+    text-align: center;
+}
+
+.c-daytimeline__title {
+    margin-block-start: var(--space-4);
+}
+
+.c-daytimeline__list {
+    margin-block-start: clamp(var(--space-9), 6vw, var(--space-11));
+}
+
+.c-daytimeline__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: baseline;
+
+    padding-block: var(--space-5);
+    padding-inline-start: clamp(var(--space-5), 2.5vw, var(--space-7));
+
+    border-inline-start: 1px solid var(--rule);
+}
+
+/*
+   The hour. Display face and the accent — the only two things in the block
+   that are not body copy, and between them they do the whole of the timing.
+   Tabular figures so that 09:00 and 22:30 are the same width and the labels
+   beside them line up down the column.
+*/
+.c-daytimeline__time {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-variant-numeric: tabular-nums lining-nums;
+    line-height: 1.2;
+    color: var(--accent);
+}
+
+@media (min-width: 1024px) {
+
+    /*
+       Two columns, filled DOWN and then across: 09:00 to 13:00 on the left,
+       17:00 to 22:30 on the right. grid-auto-flow: column with three explicit
+       rows is what does it — the obvious row-flow grid would read 09:00, 11:00
+       across the top and turn a day into a table.
+    */
+    .c-daytimeline__list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, auto);
+        grid-auto-flow: column;
+        column-gap: clamp(var(--space-8), 6vw, var(--space-11));
+    }
+}
+
+/*
+   One estate. One membership. An entire day.
+
+   Larger than the rows and centred under both columns, because it is the
+   conclusion the timetable above it is the argument for. One line from 768px
+   up; below that it wraps, and where it wraps is the point of the spans.
+*/
+.c-daytimeline__close {
+    /* Wide enough that the line is never broken by the measure alone — what
+       breaks it is the window, and the parts decide where. */
+    max-inline-size: 40ch;
+    margin-inline: auto;
+    margin-block-start: clamp(var(--space-9), 6vw, var(--space-11));
+
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    line-height: 1.2;
+    text-align: center;
+    text-wrap: balance;
+}
+
+/*
+   Each sentence is an inline-block, which is the whole trick: the space
+   between two of them is a break opportunity the browser takes before it
+   considers breaking inside either. So the line divides at a full stop rather
+   than after the word "One" — and a sentence too wide for the screen still
+   wraps inside itself, so nothing is ever pushed off the side of the page.
+   See the note in templates/components/daytimeline.php.
+*/
+.c-daytimeline__close span {
+    display: inline-block;
+}
+
+
+/* --- .c-prose — a column of text ------------------------------------------- */
+
+.c-prose__column {
+    margin-inline: auto;
+}
+
+/* For the short opening paragraph, where centring is the point. Long prose
+   stays left-aligned: 34rem of centred text is a poster. */
+.c-prose--center .c-prose__column {
+    text-align: center;
+}
+
+
+/* --- .c-pagetitle — the opening of a page with no photograph --------------- */
+
+/* A step down from the hero's h1: that one is set against a photograph the
+   height of the window, this is type on a plate. The 404 is the same case. */
+.c-pagetitle__title,
+.p-404__title {
+    font-size: var(--fs-2xl);
+}
+
+.c-pagetitle__lede,
+.p-404__lede {
+    font-size: var(--fs-lg);
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+
+/* --- .c-split — text and image, side by side ------------------------------- */
+
+.c-split__figure {
+    margin-block-start: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+
+    .c-split__inner {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(var(--space-7), 4vw, var(--space-10));
+        align-items: center;
+    }
+
+    .c-split__text {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    .c-split__figure {
+        grid-row: 1;
+        grid-column: 2;
+        margin-block-start: 0;
+    }
+
+    /* The words stay first in the markup either way — this moves the columns,
+       not the reading order. */
+    .c-split--flip .c-split__text  { grid-column: 2; }
+    .c-split--flip .c-split__figure { grid-column: 1; }
+}
+
+/* The postal address. <address> for what it means; the browser's italics are
+   not part of the meaning. */
+.c-split__details {
+    margin-block-start: var(--space-6);
+    font-style: normal;
+    line-height: 1.7;
+}
+
+.c-split__email {
+    display: block;
+    margin-block-start: var(--space-4);
+}
+
+/* Links set in the accent, outside a form. */
+.c-split__email a,
+.c-map__open,
+.c-clause a {
+    color: var(--accent);
+    text-underline-offset: 0.2em;
+}
+
+
+/* --- .c-map — the map, and the address that stands in for it --------------- */
+
+/*
+   The frame holds the shape before anything is in it, as .c-img does for a
+   photograph: placeholder and map are one box, so nothing moves when Leaflet
+   arrives. data-ground="deep" on it (§3) is why everything below reads --bg,
+   --fg and --accent — including Leaflet's own chrome — rather than naming a
+   colour.
+*/
+/*
+   THE FRAME'S RULE IS THE PAGE'S, NOT THE FRAME'S OWN.
+
+   data-ground="deep" is on the frame, so everything declared on that element
+   reads the deep ground's variables — which is what the placeholder and
+   Leaflet's chrome want, and exactly what the border does not: a green-700
+   hairline against a near-black basemap is the edge of the map rather than a
+   frame around it. So .c-map, which carries no ground, hands the page's own
+   --rule down under a second name and the border reads that. Cream-deep on the
+   contact page, and the map is a figure on cream the way an image is.
+
+   Square corners, because every image on this site has square corners.
+*/
+.c-map {
+    --map-rule: var(--rule);
+}
+
+.c-map__frame {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    border: 1px solid var(--map-rule);
+    overflow: hidden;
+}
+
+.c-map__canvas {
+    position: absolute;
+    inset: 0;
+}
+
+/* The address, centred in the frame until the map replaces it — then gone
+   outright, not left over a corner of it. */
+.c-map__placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+
+    padding: var(--space-6);
+    text-align: center;
+}
+
+[data-map-ready] .c-map__placeholder {
+    display: none;
+}
+
+.c-map__address {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.4;
+}
+
+/* The hand-off link and the coordinates, under the frame. */
+.c-map__note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    margin-block-start: var(--space-4);
+    font-size: var(--fs-sm);
+}
+
+.c-map__coordinates {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.7;
+}
+
+/*
+   The credit — ODbL and CARTO's terms, in the thin line under the frame rather
+   than on a plate inside it. See the note at the top of components/map.php.
+
+   Hidden until the tiles exist: before that the frame is a printed address and
+   there is nothing to credit. It is pushed to the end of the line so the two
+   things the reader came for — the hand-off link and the coordinates — are
+   what the eye lands on first, and it wraps to its own line rather than
+   squeezing them when the column is narrow.
+*/
+.c-map__credit {
+    display: none;
+    margin-inline-start: auto;
+    font-size: var(--fs-xs);
+    opacity: 0.55;
+}
+
+[data-map-ready] + .c-map__note .c-map__credit {
+    display: block;
+}
+
+/* Underlined only on hover: two names in a hairline of eight-point type are
+   apparatus, and two permanent underlines in it read as a link bar. */
+.c-map__credit a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.c-map__credit a:hover,
+.c-map__credit a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+/* The pin: a divIcon rather than Leaflet's PNG — the brand's gold, and no
+   request, which is why leaflet/images/ is never fetched. */
+.c-map__pin {
+    border-radius: 50%;
+    background-color: var(--accent);
+    box-shadow: 0 0 0 4px rgb(203 169 106 / 0.3);
+}
+
+/* Leaflet's chrome, in the palette. The only place here reaching into a
+   library's markup, and the trade for leaving leaflet.css upgradable. */
+.c-map .leaflet-container {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+}
+
+/*
+   NOTHING HERE STYLES .leaflet-control-attribution, because there is no longer
+   one to style: main.js builds the map with attributionControl: false and the
+   credit is printed under the frame instead (.c-map__credit above). The rule
+   that used to sit here also had to be three classes deep to win — leaflet.css
+   is injected at runtime and lands after this file, so its own
+   .leaflet-container .leaflet-control-attribution tied and took the tie. That
+   fight is over rather than won.
+
+   The zoom control is all that is left inside the canvas.
+*/
+.c-map .leaflet-bar a {
+    color: var(--accent);
+    background-color: var(--bg);
+    border-bottom-color: var(--rule);
+}
+
+
+/* --- .c-figure — an image with an archival caption ------------------------- */
+
+.c-figure--measure .c-figure__figure {
+    max-inline-size: var(--measure);
+    margin-inline: auto;
+}
+
+/*
+   Small caps with tracking: the voice of a plate under a photograph in an
+   archive, which is what a caption on this site is. Quieter than body copy
+   because it is apparatus around the image and not part of the page's prose.
+*/
+.c-figure__caption {
+    margin-block-start: var(--space-4);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.c-figure__fact,
+.c-figure__atmosphere {
+    display: block;
+}
+
+/* The atmospheric line sits under the fact, and further back. On a mood
+   image it is the only line there is — see figure.php. */
+.c-figure__atmosphere {
+    font-variant-caps: normal;
+    letter-spacing: 0;
+    opacity: 0.75;
+}
+
+
+/* --- .c-facts — label and value pairs -------------------------------------- */
+
+.c-facts__head + .c-facts__list {
+    margin-block-start: var(--space-8);
+}
+
+.c-facts__list {
+    border-block-start: 1px solid var(--rule);
+}
+
+.c-facts__row {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-5);
+    border-block-end: 1px solid var(--rule);
+}
+
+.c-facts__value {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+
+    .c-facts__list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(var(--space-7), 5vw, var(--space-11));
+    }
+}
+
+
+/* --- .c-plan-padel — the schematic of the complex -------------------------- */
+
+/*
+   THE DRAWING IS A DRAWING AND NOT A DIAGRAM WITH A THEME. It reads --fg,
+   --bg and --accent like everything else in this section, so the same plan
+   stands on cream and on green without a second version of it existing.
+
+   TWO STROKE WEIGHTS AND ONE BAND. 0.3 is the built edge — a court, a strip;
+   0.16 is everything drawn on top of one — the net, a leader, a dimension.
+   The hedge's 1.1 is neither: it is the width of the planting itself, drawn as
+   a dotted band rather than as a line, which is also why it is the only stroke
+   here with a dash pattern.
+
+   ONE USER UNIT IS ONE METRE, WHICH IS WHY THE FONT SIZES LOOK LIKE MISTAKES.
+   Inside an SVG with a viewBox, a CSS px is a user unit, so `font-size: 1.1px`
+   is 1.1 metres of plan and lands at about 14px wherever the drawing is
+   allowed to be widest. The cap below is what fixes that relationship: 700px
+   over 55 units of viewBox is 12.7px to the metre, and the annotations were
+   sized against it.
+*/
+
+.c-plan-padel__head + .c-plan-padel__figure {
+    margin-block-start: var(--space-8);
+}
+
+.c-plan-padel__figure {
+    margin: 0;
+}
+
+.c-plan-padel__svg {
+    inline-size: 100%;
+
+    /* Past this the annotations grow with the drawing and start to read as
+       headings. The plan is nearly square, so this is also what stops it from
+       becoming a full window of diagram on a wide screen. */
+    max-inline-size: 700px;
+    block-size: auto;
+    margin-inline: auto;
+}
+
+/* The hedge. A dash of nothing with a round cap is a dot, so one path draws
+   the whole clipped perimeter as planting rather than as a border. */
+.c-plan-padel__hedge {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-dasharray: 0.01 2.2;
+    opacity: 0.55;
+}
+
+.c-plan-padel__enclosure,
+.c-plan-padel__line,
+.c-plan-padel__lead {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 0.16;
+}
+
+.c-plan-padel__court rect,
+.c-plan-padel__zone {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 0.3;
+}
+
+/* The two strips are built ground rather than open court, and the wash is the
+   whole of the difference. --fg at 6% is the ground's own ink, so it stays a
+   shade of the page on all three temperatures. */
+.c-plan-padel__zone {
+    fill: var(--fg);
+    fill-opacity: 0.06;
+}
+
+.c-plan-padel__crest-ground {
+    fill: var(--bg);
+}
+
+.c-plan-padel__crest {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 5.5;
+}
+
+/* The M is the small mark's own path at the small mark's own weight, both
+   scaled with the group — see the crest note in plan-padel.php. */
+.c-plan-padel__crest path {
+    stroke-width: 9;
+}
+
+.c-plan-padel__arrow {
+    fill: var(--fg);
+}
+
+/* The one accented annotation: the overall width. */
+.c-plan-padel__dim path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.16;
+}
+
+.c-plan-padel__dim polygon {
+    fill: var(--accent);
+}
+
+/*
+   The numbered discs. They are the only annotation that survives on a phone,
+   so they are also the only one that grows there: the group is scaled about
+   its own centre, which takes the disc and the number inside it together and
+   leaves every position on the drawing where it was.
+*/
+.c-plan-padel__mark {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.c-plan-padel__disc {
+    fill: var(--bg);
+    stroke: var(--fg);
+    stroke-width: 0.16;
+}
+
+.c-plan-padel__key {
+    font-family: var(--font-body);
+    font-size: 1.35px;
+    font-weight: 500;
+    fill: var(--fg);
+}
+
+.c-plan-padel__mark--accent .c-plan-padel__disc {
+    stroke: var(--accent);
+}
+
+.c-plan-padel__mark--accent .c-plan-padel__key {
+    fill: var(--accent);
+}
+
+.c-plan-padel__label {
+    font-family: var(--font-body);
+    font-size: 1.1px;
+    fill: var(--fg);
+}
+
+.c-plan-padel__label--accent {
+    fill: var(--accent);
+}
+
+/*
+   THE LEGEND IS THE PHONE'S COPY OF THE LABELS AND NOTHING ELSE.
+
+   Above 768px it is not rendered: the labels are on the drawing where they
+   belong, and a second set of them underneath would be a caption repeating the
+   picture. The layout is described for a screen reader in the SVG's own
+   <desc>, at every width, so nothing is carried by this list alone.
+*/
+.c-plan-padel__legend {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+
+    /* Seven pixels of type on a drawing is not small text, it is texture. */
+    .c-plan-padel__label {
+        display: none;
+    }
+
+    .c-plan-padel__mark {
+        transform: scale(1.45);
+    }
+
+    /*
+       ol.… and not .… on its own: the reset strips the markers from every
+       classed list (§4, ol[class]), and that selector outweighs a bare class.
+       The markers are the whole point of this one — they are what ties a line
+       to the disc it belongs to on the drawing above it.
+    */
+    ol.c-plan-padel__legend {
+        display: block;
+        max-inline-size: var(--measure);
+        margin-block-start: var(--space-7);
+        margin-inline: auto;
+        padding-inline-start: var(--space-6);
+
+        list-style: decimal;
+        font-size: var(--fs-sm);
+    }
+
+    .c-plan-padel__legend li + li {
+        margin-block-start: var(--space-3);
+    }
+}
+
+
+/* --- .c-quote — one line of the brand -------------------------------------- */
+
+/*
+   The extra air is bought by raising --space-section for this block only, not
+   by giving the component padding of its own. .section still owns every pixel
+   of vertical space on the page, and removing it still collapses all of it.
+*/
+.c-quote {
+    --space-section: clamp(112px, 16vh, 220px);
+}
+
+.c-quote__figure {
+    margin-inline: auto;
+}
+
+/* Centred over the line, and a long way off it: the block is mostly air and
+   the eyebrow has to read as the subject of what follows rather than as the
+   first line of it. */
+.c-quote__eyebrow {
+    margin-block-end: var(--space-8);
+    text-align: center;
+}
+
+/*
+   The measure is on the line and not on the wrapper, in both shapes. ch is
+   relative to the font size of the element it is written on, so a width set
+   on the <figure> — body size — comes out less than half the width of the
+   same number set on the line, and the attributed quote would sit in a
+   narrow gutter while the bare one spread across the page.
+*/
+.c-quote__line {
+    max-inline-size: 24ch;
+    margin-inline: auto;
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.012em;
+    text-align: center;
+    text-wrap: balance;
+    quotes: none;
+}
+
+.c-quote__line::before,
+.c-quote__line::after {
+    content: none;
+}
+
+.c-quote__attribution {
+    margin-block-start: var(--space-6);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    text-align: center;
+    color: var(--accent);
+}
+
+
+/* --- .c-cta — eyebrow, a line, one button ---------------------------------- */
+
+.c-cta__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.c-cta__title {
+    max-inline-size: 20ch;
+}
+
+
+/* --- .c-gallery — a grid that opens into the lightbox ---------------------- */
+
+.c-gallery__head + .c-gallery__grid {
+    margin-block-start: var(--space-8);
+}
+
+.c-gallery__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gutter);
+}
+
+/* The trigger. A button, stripped back to the image it contains — the target
+   is the picture, so there is nothing to see of the control itself. */
+.c-gallery__item {
+    display: block;
+    inline-size: 100%;
+    padding: 0;
+
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.c-gallery__item .c-img {
+    transition: transform var(--dur) var(--ease);
+}
+
+.c-gallery__item:hover .c-img:not([data-empty]) {
+    transform: scale(1.02);
+}
+
+/* The ring belongs on the picture, not on a zero-height button box. */
+.c-gallery__item:focus-visible {
+    outline: none;
+}
+
+.c-gallery__item:focus-visible .c-img {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+
+    .c-gallery__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* A span is only ever as wide as there are tracks to give it. */
+    .c-gallery__cell--span-2,
+    .c-gallery__cell--span-3 {
+        grid-column: span 2;
+    }
+}
+
+@media (min-width: 1180px) {
+
+    .c-gallery__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .c-gallery__cell--span-3 {
+        grid-column: span 3;
+    }
+}
+
+
+/* --- .c-lightbox — the opened image ---------------------------------------- */
+
+/*
+   Built by main.js on first open and reused; there is no lightbox in the
+   markup until somebody asks for one.
+
+   It stands on a ground like everything else. The script copies the
+   temperature of the section the image was opened from — .section--day and
+   friends in §3 — so a night gallery opens into a wine room and a day gallery
+   into a cream one, and --accent and --rule are legible either way without a
+   single colour being named here.
+
+   AND IT PAINTS ITSELF EVEN WHEN THERE IS NOTHING TO COPY. A section only
+   carries .section--day when its content asked for a temperature; a page that
+   runs one mood from top to bottom — the estate does — sets it once on <body>
+   and its sections carry no modifier at all. There is then no class for the
+   script to take, and a dialog with no ground of its own is a transparent
+   modal with the page legible through the photograph. So --bg is painted here
+   unconditionally: inherited from <body> in the ordinary case, overridden by
+   the copied class when a gallery is standing on a temperature of its own.
+   Still no colour named, and one less thing that has to go right.
+*/
+.c-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: var(--space-4);
+
+    background-color: var(--bg);
+    color: var(--fg);
+}
+
+.c-lightbox[hidden] {
+    display: none;
+}
+
+.c-lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex: none;
+}
+
+.c-lightbox__counter {
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-eyebrow);
+    opacity: 0.7;
+}
+
+/*
+   Close, previous and next are one control at three positions, and 44px is
+   the target on all three. Their marks are drawn rather than typed: a × is a
+   letter in some faces and an arrow is missing from others, and the two the
+   drawer's own button uses are drawn for the same reason.
+*/
+.c-lightbox__button {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0;
+
+    background: none;
+    border: 1px solid transparent;
+    color: inherit;
+    cursor: pointer;
+
+    transition: border-color var(--dur) var(--ease),
+                color var(--dur) var(--ease);
+}
+
+.c-lightbox__button:hover {
+    color: var(--accent);
+    border-color: var(--rule);
+}
+
+/* Previous and next: a corner of a square, turned to point. */
+.c-lightbox__prev::before,
+.c-lightbox__next::before {
+    content: "";
+    inline-size: 11px;
+    block-size: 11px;
+    border-block-start: 1px solid currentColor;
+    border-inline-end: 1px solid currentColor;
+}
+
+.c-lightbox__prev::before { transform: rotate(-135deg); margin-inline-start: 4px; }
+.c-lightbox__next::before { transform: rotate(45deg);   margin-inline-end: 4px; }
+
+/* Close: two strokes crossing. */
+.c-lightbox__close::before,
+.c-lightbox__close::after {
+    content: "";
+    position: absolute;
+    inline-size: 18px;
+    block-size: 1px;
+    background-color: currentColor;
+}
+
+.c-lightbox__close::before { transform: rotate(45deg); }
+.c-lightbox__close::after  { transform: rotate(-45deg); }
+
+/*
+   Previous, picture, next.
+
+   A grid rather than a row, because below 600px the three do not fit beside
+   each other: two 44px targets and their gaps take a third of a 360px screen,
+   and the picture is what is left. There the arrows drop under the picture
+   instead, side by side, and the image gets the full width of the window.
+
+   The middle column is minmax(0, 1fr) for the usual reason — a bare 1fr
+   floors at the content's width, and a picture that will not shrink pushes
+   the arrow beside it off the screen.
+*/
+.c-lightbox__stage {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "prev media next";
+    align-items: center;
+    gap: var(--space-2);
+
+    flex: 1 1 auto;
+    min-block-size: 0;
+}
+
+.c-lightbox__prev  { grid-area: prev; }
+.c-lightbox__next  { grid-area: next; }
+.c-lightbox__media { grid-area: media; }
+
+.c-lightbox__media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+
+    inline-size: 100%;
+    min-inline-size: 0;
+}
+
+@media (max-width: 599.98px) {
+
+    .c-lightbox__stage {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "media media"
+            "prev  next";
+        align-content: center;
+        gap: var(--space-6) var(--space-4);
+    }
+
+    /* Adjacent in the middle rather than one at each edge: they are a pair of
+       controls, not two corners of the screen. */
+    .c-lightbox__prev { justify-self: end; }
+    .c-lightbox__next { justify-self: start; }
+}
+
+/*
+   The frame holds the width the picture may have.
+
+   It is a flex item of a column that centres its children, which means that
+   left to itself it is exactly as wide as whatever is inside it — and then a
+   placeholder asking for 100% gets 100% of its own width, which is to say it
+   shrinks to fit its own filename. Stretching the frame gives the percentage
+   something real to be a percentage of; centring keeps a real photograph,
+   which sizes itself, in the middle of it.
+*/
+.c-lightbox__frame {
+    display: flex;
+    justify-content: center;
+    inline-size: 100%;
+}
+
+/*
+   In the page a .c-img is a box the picture fills. Here it is the picture, so
+   the shape comes off the file and the box gets out of the way — except for a
+   placeholder, which has no file to take a shape from and keeps its ratio.
+*/
+.c-lightbox .c-img {
+    inline-size: auto;
+    aspect-ratio: auto;
+    overflow: visible;
+    background: none;
+}
+
+/*
+   A placeholder has no file to take a shape from, so it is sized by hand: as
+   wide as the space allows, but never so wide that its own ratio makes it
+   taller than the window. calc(70vh * n) is the width at which a box of this
+   shape is exactly 70vh tall — hence --img-ratio-n, which is the ratio as a
+   number rather than as "3 / 2".
+*/
+.c-lightbox .c-img[data-empty] {
+    /*
+       The width and the cap are separate declarations on purpose. A 100%
+       inside min() is a percentage against a parent that is itself sized by
+       its content, and it resolves as though it were auto — the box then
+       shrinks to fit its own filename. A plain 100% with a max on top has no
+       such ambiguity.
+    */
+    inline-size: 100%;
+    max-inline-size: min(720px, calc(70vh * var(--img-ratio-n, 1.5)));
+
+    aspect-ratio: var(--img-ratio, 3 / 2);
+    background-color: var(--bg);
+}
+
+.c-lightbox .c-img img {
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: min(92vw, 1280px);
+    max-block-size: 70vh;
+    object-fit: contain;
+}
+
+.c-lightbox__caption {
+    max-inline-size: var(--measure);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.1em;
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* Off the picture at every width — an arrow sitting on top of an image is an
+   arrow in front of the thing somebody opened it to look at. */
+.c-lightbox__prev,
+.c-lightbox__next {
+    align-self: center;
+}
+
+
+/* --- .c-pageseal — the crest, standing on its own -------------------------- */
+
+/*
+   Membership, between the hero and the first paragraph, and the one place on
+   the site where the crest is the subject rather than a mark on something
+   (ARCHITECTURE §8.5). Everywhere else it is at 'sm' or 'md' beside a
+   wordmark; here it is at 'lg', centred, with nothing else in the band.
+
+   The band is deliberately tighter than a full .section either side of it: the
+   seal belongs to the hero above it as a seal on a letter belongs to the
+   letter, and a full section's worth of air under it would leave it floating
+   between two things instead of closing one.
+*/
+.c-pageseal {
+    padding-block: clamp(48px, 8vh, 96px);
+    text-align: center;
+}
+
+
+/* --- .c-form — the membership application ---------------------------------- */
+
+/*
+   ONE COLUMN, WIDER THAN PROSE AND NARROWER THAN THE PAGE.
+
+   --measure is 34rem and it is right for reading; a form set to it puts Name
+   and Surname in a column so tight they stack at every width, and the whole
+   thing reads as a receipt. 44rem takes the pairs side by side from 640px up
+   and still stops well short of the full band, where a line of input 1200px
+   wide would look like a search engine.
+*/
+.c-form__column {
+    max-inline-size: 44rem;
+    margin-inline: auto;
+}
+
+.c-form__head {
+    margin-block-end: var(--space-9);
+}
+
+.c-form__intro {
+    max-inline-size: var(--measure);
+}
+
+/* The form's own rhythm: a row from the one above it. */
+.c-form__form {
+    --stack-space: var(--space-6);
+}
+
+/* --- the honeypot ---------------------------------------------------------- */
+
+/*
+   OFF THE SCREEN, AND NOT display:none ON THE INPUT.
+
+   The scrapers this catches skip fields that are display:none — that check is
+   the first thing anybody writing one adds. So the WRAPPER is moved out of the
+   viewport and the input inside it is left completely unstyled: something
+   reading the DOM finds an ordinary text field with an ordinary label, which
+   is the bait.
+
+   Not .u-visually-hidden either, for the same reason — that class is the one a
+   screen reader is meant to reach, and it is recognisable. A person never
+   arrives here: aria-hidden keeps it off the accessibility tree and
+   tabindex="-1" keeps it out of the tab order (see form-membership.php).
+*/
+.c-form__trap {
+    position: absolute;
+    inset-inline-start: -9999px;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+}
+
+/* --- rows and fields ------------------------------------------------------- */
+
+.c-form__row {
+    display: grid;
+    gap: var(--space-6);
+}
+
+/*
+   The brief's pairs — Name/Surname, Country/City, Email/Phone — side by side
+   once there is room for both, stacked below it. 640px rather than the 768px
+   breakpoint the rest of the site uses: this column is 44rem and the pairs fit
+   comfortably before the page as a whole reaches its own next size.
+*/
+@media (min-width: 640px) {
+    .c-form__row--pair {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/*
+   A fieldset with no border and no padding. The element is here for what it
+   means — a legend that names the question for every radio inside it — and
+   not for the box browsers draw around it by default.
+*/
+.c-form__fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+}
+
+.c-form__label {
+    display: block;
+    margin-block-end: var(--space-2);
+    padding: 0;
+
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--fg);
+}
+
+/* The asterisk is decoration on top of the `required` attribute, never instead
+   of it — which is why it is aria-hidden in the markup. */
+.c-form__mark {
+    margin-inline-start: 0.35em;
+    color: var(--accent);
+}
+
+/* --- controls -------------------------------------------------------------- */
+
+/*
+   A hairline box on the page's own ground, which is what keeps one control
+   working on cream, green and wine without a modifier. A filled input would
+   need a fill per temperature; a border needs --rule, and --rule is already
+   the right colour on all three.
+
+   font: inherit, because a form control does not inherit type from the page in
+   any browser, and an application set in the browser's default sans on a page
+   set in Inter is the detail that makes a form feel bolted on.
+*/
+.c-form__control {
+    inline-size: 100%;
+    min-block-size: 44px;
+    padding: var(--space-3) var(--space-4);
+
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    line-height: 1.4;
+    color: var(--fg);
+
+    background-color: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+
+    transition: border-color var(--dur) var(--ease);
+}
+
+.c-form__control--text {
+    min-block-size: auto;
+    resize: vertical;
+}
+
+/*
+   The enquiry form's subject. `appearance` is left alone — without the arrow
+   this is a text field that opens a menu — and room is made for the arrow. The
+   open list is painted by the OS from the element's own colours, which on a
+   transparent control means cream on white: hence the two on <option>.
+*/
+.c-form__control--select {
+    padding-inline-end: var(--space-8);
+}
+
+.c-form__control--select option {
+    background-color: var(--bg);
+    color: var(--fg);
+}
+
+/* The border is the only thing that moves on hover and focus, so nothing
+   jumps: a control that gains a second border pixel on focus moves every
+   field below it. */
+.c-form__control:hover {
+    border-color: var(--fg);
+}
+
+.c-form__control:focus-visible {
+    border-color: var(--accent);
+}
+
+/*
+   A field the server has marked invalid. The colour is the third signal after
+   the message and aria-invalid, never the first — see the --danger note in §3.
+*/
+.c-form__control[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+/* --- radios ---------------------------------------------------------------- */
+
+.c-form__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+}
+
+/*
+   The label sits beside its own radio and the pair is one target: 44px of
+   height on the label means the words are clickable, which is the difference
+   between a comfortable answer and aiming at a 13px circle.
+*/
+.c-form__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.c-form__choice input {
+    inline-size: 20px;
+    block-size: 20px;
+    margin: 0;
+    accent-color: var(--accent);
+    flex: none;
+}
+
+.c-form__choice label {
+    display: flex;
+    align-items: center;
+    min-block-size: 44px;
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    cursor: pointer;
+}
+
+/* --- hints, errors and the notes under the form ---------------------------- */
+
+.c-form__hint,
+.c-form__error,
+.c-form__note {
+    margin-block-start: var(--space-2);
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.c-form__hint,
+.c-form__note {
+    color: var(--fg);
+    opacity: 0.7;
+}
+
+.c-form__error {
+    color: var(--danger);
+    font-weight: 500;
+}
+
+/* --- the summary ----------------------------------------------------------- */
+
+/*
+   The first thing in the form and the first thing focused. It is bordered
+   rather than filled because a filled panel in --danger on a wine ground is a
+   slab, and this has to be read, not survived.
+*/
+.c-form__summary {
+    margin-block-end: var(--space-8);
+    padding: var(--space-6);
+    border: 1px solid var(--danger);
+}
+
+.c-form__summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.c-form__summary-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+    color: var(--fg);
+}
+
+.c-form__summary-list {
+    margin-block-start: var(--space-4);
+    padding-inline-start: var(--space-5);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+}
+
+/* Each line is a link to the field it belongs to, and it has to look like one
+   — this is the one list on the site somebody navigates by. */
+.c-form__summary-list a {
+    color: var(--fg);
+    text-underline-offset: 0.2em;
+}
+
+.c-form__summary-list span {
+    display: block;
+    color: var(--fg);
+    opacity: 0.8;
+}
+
+/* --- the privacy notice and the button ------------------------------------- */
+
+/*
+   Directly above the button, and it stays there: the space below it is the
+   button's own, so nothing can be slipped between the sentence and the act it
+   describes (ARCHITECTURE §12.3).
+*/
+.c-form__privacy {
+    max-inline-size: var(--measure);
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+    opacity: 0.85;
+}
+
+.c-form__privacy a {
+    color: var(--accent);
+    text-underline-offset: 0.2em;
+}
+
+.c-form__actions {
+    margin-block-start: var(--space-7);
+}
+
+/* --- the thank-you --------------------------------------------------------- */
+
+/*
+   What stands where the form was. The server renders this instead of the form
+   (see form-membership.php), so there is nothing here hiding anything — this
+   is the whole of the page's answer.
+
+   It is given roughly the height a form has, so the page does not collapse
+   under the reader at the moment they finish: the footer jumping up the screen
+   reads as something having gone wrong, which is the opposite of what just
+   happened.
+*/
+.c-form__done {
+    --stack-space: var(--space-4);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-block-size: 40vh;
+    padding-block: var(--space-9);
+    border-block-start: 1px solid var(--rule);
+    border-block-end: 1px solid var(--rule);
+    text-align: center;
+}
+
+.c-form__done:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
+.c-form__done-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    line-height: 1.1;
+}
+
+.c-form__done-body {
+    font-family: var(--font-body);
+    font-size: var(--fs-lg);
+    line-height: 1.5;
+    opacity: 0.85;
+}
+
+
+/* --- .c-clause — one clause of a legal document ---------------------------- */
+
+/*
+   THE ONLY LONG-FORM TYPOGRAPHY ON THIS SITE. Elsewhere a page is bands with
+   one h2 each; here twelve headings and sixty paragraphs share a column, so
+   h2 is --fs-lg in the display face, h3 is --fs-base tracked in the body face
+   and clearly subordinate, and the measure is set at 1.7 to be read in one
+   pass. The §5 sizes are for pages that are looked at: --fs-2xl on twelve
+   legal headings is a poster.
+*/
+.c-clause {
+    --stack-space: var(--space-4);
+}
+
+.c-clause__title {
+    font-size: var(--fs-lg);
+    line-height: 1.25;
+    letter-spacing: 0;
+}
+
+h3.c-clause__title {
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+}
+
+.c-clause p,
+.c-clause__list {
+    line-height: 1.7;
+}
+
+/* Findable without being loud: thickening on hover rather than moving. */
+.c-clause a:hover {
+    text-decoration-thickness: 2px;
+}
+
+/* The one coloured bullet on this site: a list in a legal document is usually
+   the part somebody came for. */
+.c-clause__list {
+    padding-inline-start: var(--space-5);
+}
+
+.c-clause__list li::marker {
+    color: var(--accent);
+}
+
+.c-clause__list li + li {
+    margin-block-start: var(--space-2);
+}
+
+/* A gap, printed as one (see clause.php). Dashed because a dashed rule reads
+   as provisional; --danger because it is not a note but something missing from
+   a published legal page. */
+.c-clause__todo {
+    padding: var(--space-4) var(--space-5);
+    border: 1px dashed var(--danger);
+}
+
+.c-clause__todo-label {
+    margin-inline-end: var(--space-3);
+    color: var(--danger);
+}
+
+/*
+   A CLAUSE STANDING UNDER A SECTION INSTEAD OF INSIDE A DOCUMENT.
+
+   The licensing line under the private gaming section of /after-dark, and the
+   only use of it — see 'standalone' in components/clause.php. The band is
+   flush at the top because the clause belongs to the block above it: a second
+   section's worth of air would read as the page moving on to something else,
+   and the hairline is what attaches it.
+
+   The treatment is .p-legal__updated's, which is this site's fine print — the
+   same --fs-sm under the same 1px --rule at the same 0.7. Softening by opacity
+   rather than by a colour is what lets one rule serve every ground, and it is
+   why nothing here names a colour: --ink-soft is 7.0:1 on cream and cannot be
+   written on wine, while cream at 0.7 over --wine-900 measures 6.4:1 — within
+   a hundredth of what the same 0.7 gives the legal pages on cream, and well
+   clear of the 4.5:1 in §16. Fine print is small, not unreadable.
+*/
+.c-clause-band {
+    padding-block-start: 0;
+}
+
+.c-clause--standalone {
+    padding-block-start: var(--space-6);
+    border-block-start: 1px solid var(--rule);
+    font-size: var(--fs-sm);
+    opacity: 0.7;
+}
+
+
+/* ===========================================================================
+   8. page overrides
+   ---------------------------------------------------------------------------
+   One page's exception to a component or a primitive, never a new component.
+   Anything that turns up here twice belongs in §7 instead.
+   =========================================================================== */
+
+/* The not-found page. Centred: four elements on an empty green screen,
+   left-aligned, look like a page that failed to load. */
+.p-404 {
+    text-align: center;
+}
+
+/* The seal centres itself; the lede is held to a measure and must be told to. */
+.p-404__lede {
+    margin-inline: auto;
+}
+
+.p-404__ways {
+    margin-block-start: var(--space-10);
+}
+
+/* The four ways in, in a row that becomes a column when there is not room. */
+.p-404__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-5) var(--space-8);
+}
+
+/* The document opens under its title band, and both are cream: two lots of
+   section padding put a 360px hole where the opening should be. */
+.p-legal {
+    padding-block-start: 0;
+}
+
+/* The date at the foot of a legal document, under a hairline. */
+.p-legal__updated {
+    padding-block-start: var(--space-6);
+    border-block-start: 1px solid var(--rule);
+    font-size: var(--fs-sm);
+    opacity: 0.7;
+}
+
+/*
+   Empty, and that is the intended state.
+
+   The home page is eight blocks of immersion and it is built entirely out of
+   components — hero, chapter, daytimeline, cta, and the seams between them.
+   The provisional .p-home__hero that used to stand here is gone: it was the
+   first screen sketched in the page layer while there was no hero component,
+   and there is one now. Anything that needs to be written here about the home
+   page is a sign that a component has been given the wrong job.
+*/
+
+
+/* ===========================================================================
+   9. utilities
+   =========================================================================== */
+
+/*
+   The brand's voice: the uppercase, widely tracked line that carries
+   PRIVATE ESTATE & MEMBERS' CLUB, JŪRMALA · LATVIA and MEMBERS & GUESTS.
+   Straight out of the brochure, and the reason it takes --accent rather than
+   --gold is the gold rule in §2 — on cream this renders in --gold-ink.
+
+   Tracking adds a letter-space after the last character as well as between
+   them, which throws the line off centre by half of it and pushes it left of
+   a right edge. The negative end margin takes that space back, so a centred
+   or right-aligned eyebrow lines up with the display type above it.
+*/
+.u-eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    margin-inline-end: calc(var(--tracking-eyebrow) * -1);
+    color: var(--accent);
+}
+
+/* Available to screen readers, invisible on screen. */
+.u-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+}
+
+/*
+   A skip link is visually hidden until it takes focus, and then it has to be
+   seen. Keyboard focus only, which is exactly the audience for a skip link.
+*/
+.u-visually-hidden:focus-visible {
+    position: fixed;
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    z-index: 100;
+
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: var(--space-3) var(--space-5);
+    overflow: visible;
+    clip-path: none;
+
+    background-color: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--rule);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+}
+
+
+/* ===========================================================================
+   Reduced motion — last, so it wins.
+   ---------------------------------------------------------------------------
+   Everything off, including the 600ms mood transition and the smooth scroll.
+   Not "shorter": off. ARCHITECTURE §8.6.
+
+   The drawer is the one worth spelling out. Its open state is a transition and
+   not an animation, so switching the duration off leaves the panel appearing
+   and disappearing outright — which is the intended behaviour here, not a
+   degraded one. It still hides properly: visibility flips with everything
+   else, so nothing inside a closed panel is reachable.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    /* No slide, in or out. */
+    .c-drawer {
+        transform: none;
+    }
+
+    /*
+       The scroll cue goes, rather than freezing.
+
+       Everything else in this block stops moving and stays where it is, which
+       is right for a panel or a colour. The cue is different: it is a mark
+       whose whole meaning is the movement, and stopped mid-animation it is an
+       unexplained hairline under the hero. There is nothing lost — the page
+       below it is reached by scrolling either way.
+    */
+    .c-hero__cue {
+        display: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+}

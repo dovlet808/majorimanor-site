@@ -1,0 +1,14 @@
+# Keep GitHub's language bar about the code that was written here, not the
+# libraries that were vendored or the documentation.
+public_html/app/vendor/**       linguist-vendored
+public_html/assets/js/vendor/** linguist-vendored
+public_html/assets/js/leaflet/** linguist-vendored
+docs/**                          linguist-documentation
+
+# Binary assets: no text diffs, no line-ending conversion.
+*.mp4   binary
+*.webp  binary
+*.jpg   binary
+*.png   binary
+*.woff2 binary
+*.ico   binary

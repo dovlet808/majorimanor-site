@@ -1,0 +1,440 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — padel.css
+
+   WHAT THIS FILE IS NOT. It is not a second design system, and it is not even
+   a third one: PADEL loads home.css and then estate.css and draws almost
+   everything with them. The tokens, the two faces, the grain, the navigation
+   and its active state, the hero, the bands, the chapters, the plates, the
+   world index, the invitation, the footer, the six act grounds, the ledger and
+   the reveal states are all the three approved pages', used here unchanged.
+
+   WHAT THIS FILE IS. Four things none of them has a use for:
+
+     1. the plan   plan-padel.php is a main.css component and this page is a
+                   film. It is the same drawing at the same coordinates; what
+                   is here is the light it is drawn in and the measure it
+                   stands on
+     2. the reveal the drawing assembling itself, in the states padel.js needs
+                   and the fallbacks it must never be able to break
+     3. legibility three places where this page's photographs are brighter
+                   than the three approved pages' and the type over them had to
+                   be measured rather than judged
+     4. narrow     the real mobile pass, and the 21:9 band is most of it
+
+   IT IS THE FIRST FILM PAGE THAT ADDS NO COMPONENT. THE ESTATE brought the
+   walk and the ledger; THE CLUB brought the lateral track and the dialogue.
+   This one brought nothing, because everything it needed was already built —
+   which is what a design system is for, and is the reason this file is a
+   quarter the length of club.css.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. The plan, on a dark ground
+   ---------------------------------------------------------------------------
+   THE DRAWING IS ALREADY GROUND-AGNOSTIC AND THAT IS NOT LUCK. main.css says
+   so where it is drawn: "it reads --fg, --bg and --accent like everything else
+   in this section, so the same plan stands on cream and on green without a
+   second version of it existing." A film page is the third ground and the
+   claim holds — cream hairlines and a gold dimension on mahogany, with nothing
+   in plan-padel.php touched.
+
+   ONE VARIABLE HAD TO BE RECONNECTED. home.css §2 declares --bg: var(--ground)
+   on [data-mood="night"], which is the <body>; custom properties substitute at
+   the point of declaration, so --bg computes there, against the ROOT ground,
+   and every act inherits that one value however dark or warm its own ground
+   is. On this page it is the discs and the four crest grounds that read --bg —
+   they knock a hole in the line underneath them — and a near-black hole in a
+   mahogany drawing is a visible mistake. Rebinding it per act is one line and
+   it is more correct than what it replaces.
+
+   THE SECTION AND THE MEASURE ARE THE FILM'S. .section and .wrap belong to
+   main.css's page shell — 180px of padding and a 1440px measure — and the film
+   has its own rhythm token for both. Restating them here rather than editing
+   main.css is the whole reason this rule exists: asset_url() cache-busts on
+   filemtime, so one byte changed in main.css re-versions the stylesheet in the
+   markup of all eleven pages.
+   =========================================================================== */
+
+.c-act {
+    --bg: var(--ground);
+}
+
+.c-act .c-plan-padel {
+    /* The ledger above has already opened the act; the drawing is the second
+       half of the same scene and does not start a new one. */
+    padding-block: 0 var(--scene);
+    background-color: transparent;
+}
+
+.c-act .c-plan-padel > .wrap {
+    max-width: var(--shell);
+    padding-inline: var(--gutter);
+}
+
+.c-act .c-plan-padel__head {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* The film's eyebrow, not main.css's: same job, different type scale, and the
+   two sitting in one act would read as two designers. */
+.c-act .c-plan-padel__head .u-eyebrow {
+    font-size: clamp(0.625rem, 0.72vw, 0.7rem);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    color: var(--gold-ink);
+    margin: 0;
+}
+
+/*
+   THE DRAWING GETS WIDER HERE THAN IT IS ANYWHERE ELSE, and only a little.
+   main.css caps it at 700px so that its annotations do not grow into headings;
+   the cap is a relationship between the type size and the viewBox, not a
+   number, and at 760 the labels are still 13.8px to the metre against the 12.7
+   that cap was set for. Past that they start to read as titles, which is the
+   failure the original number is protecting against.
+*/
+.c-act .c-plan-padel__svg {
+    max-inline-size: 760px;
+}
+
+/*
+   THE HEDGE GOES THE OTHER WAY ON A DARK GROUND, and it is the one value on
+   this page that had to be moved down rather than up. It is drawn as a dotted
+   band — a dash of nothing with a round cap — at 1.1 units, which is the width
+   of the planting rather than a line weight. On cream at main.css's 55% those
+   dots are a grey band behind the drawing. On near-black at the same number
+   they are the brightest thing on the sheet: forty cream discs, each one wider
+   than every stroke in the plan, reading as beads rather than as a hedge. At
+   0.42 the band sits just under the enclosure hairline it runs beside, which is
+   where planting belongs on a plan.
+*/
+.c-act .c-plan-padel__hedge {
+    opacity: 0.42;
+}
+
+
+/* ===========================================================================
+   2. The reveal
+   ---------------------------------------------------------------------------
+   THE DRAWING ASSEMBLES ITSELF, AND IT IS THE LEDGER'S OWN IDEA. estate.css §3
+   draws a hairline under each fact from nothing as the row arrives, and calls
+   it "the one piece of ornament on the page that is about architecture rather
+   than about photography: a sheet of drawings assembling itself." This is that
+   sentence taken literally on an actual sheet of drawings.
+
+   NOTHING BELOW HIDES ANYTHING. Every rule in this section is a will-change or
+   a reduced-motion reset. The stroke offsets and the opacities are set by
+   padel.js, on the elements it is about to animate, only when the motion layer
+   is running and only when the drawing is below the fold — which is home.css
+   §13's rule and the reason a reader with no JavaScript, a blocked CDN or a
+   reduced-motion setting gets a finished drawing on the first paint rather
+   than an empty rectangle.
+
+   IT IS A LINE DRAWING AND NOT A CAD INTERFACE, which is a brief instruction
+   and also a technical one: what animates is the length of a stroke and the
+   opacity of an annotation, and nothing on the drawing ever moves. A plan
+   whose parts slide into place is a diagram of itself.
+   =========================================================================== */
+
+html.is-drawing .c-plan-padel__enclosure,
+html.is-drawing .c-plan-padel__zone,
+html.is-drawing .c-plan-padel__court rect,
+html.is-drawing .c-plan-padel__line,
+html.is-drawing .c-plan-padel__dim path {
+    will-change: stroke-dashoffset;
+}
+
+/*
+   .is-drawing IS TAKEN OFF AGAIN WHEN THE SHEET IS FINISHED. padel.js removes
+   it at the end of the timeline, so the will-change above — forty compositor
+   layers on a drawing that has stopped moving — lasts about two and a half
+   seconds and then does not.
+*/
+
+@media (prefers-reduced-motion: reduce) {
+
+    /*
+       These cannot fire under the reduced-motion setting this file was written
+       for: head.php fetches no library at all in that case, so padel.js never
+       runs and nothing is ever set. They are here for the reader who changes
+       the setting with the page already open, which is the one path that leaves
+       a half-drawn plan on screen with nothing left to finish it.
+    */
+    .c-plan-padel__enclosure,
+    .c-plan-padel__zone,
+    .c-plan-padel__court rect,
+    .c-plan-padel__line,
+    .c-plan-padel__dim path,
+    .c-plan-padel__lead {
+        stroke-dasharray: none !important;
+        stroke-dashoffset: 0 !important;
+    }
+
+    .c-plan-padel__zone {
+        fill-opacity: 0.06 !important;
+    }
+
+    .c-plan-padel__crest,
+    .c-plan-padel__crest-ground,
+    .c-plan-padel__dim polygon,
+    .c-plan-padel__arrow,
+    .c-plan-padel__mark,
+    .c-plan-padel__label {
+        opacity: 1 !important;
+    }
+
+    /* Back to §1's value and not to 1: the hedge is planting drawn as a dotted
+       band and it is meant to sit under the two hairlines beside it. */
+    .c-act .c-plan-padel__hedge {
+        opacity: 0.42 !important;
+    }
+
+    .c-film-band__still img {
+        transform: none !important;
+    }
+}
+
+
+/* ===========================================================================
+   3. Legibility, where this page is brighter than the three before it
+   ---------------------------------------------------------------------------
+   Every value below was measured on the rendered page against the
+   95th-percentile brightest background pixel the element crosses, with the
+   type hidden so it is not sampled as its own background. Three places needed
+   a change and each one is a number rather than a taste. See docs/PADEL.md §6.
+
+   3a · THE HERO. THE ESTATE's hero stands on white render and estate.css §1b
+   answers it with a soft band behind the copy; this one stands on a night park
+   with a lit hedge running the width of the frame directly under the copy, and
+   a row of glazed courts full of point sources behind that. The band inherited
+   from estate.css carries the title and the statement. What it does not reach
+   is the scroll cue, which sits below the band's foot, on the brightest part of
+   the hedge.
+
+   3b · THE BANDS. Two of the four sequences are lit from behind the camera —
+   the late afternoon and the dusk terrace — and their lower left, where every
+   band overlay stands, is a hedge in raking sun and a lit bar. The full-bleed
+   scrim in home.css §7 reaches 72% at the very foot of the frame and about 40%
+   where the eyebrow and the scene number actually sit. THE CLUB solved the
+   same problem by giving the copy box its own gradient (club.css §1c); this is
+   that fix, and it is a copy of it on purpose.
+
+   THE OVERLAY KEEPS ITS position: absolute AND TAKES A z-index, which is the
+   whole of how this works and the one way to get it wrong. home.css pins the
+   overlay to the foot of the frame with `inset: auto 0 0`; making it relative
+   in order to hang a pseudo-element off it drops it back into the flow and puts
+   the scene title at the TOP of the picture. A z-index of 1 gives it a stacking
+   context of its own without moving it, and z-index: -1 on the wash then lands
+   between the picture and the type instead of behind the picture.
+
+   AND THE WASH IS WIDER THAN THE BOX IT HANGS ON. The overlay is capped at
+   --shell and centred, so on a 1920 screen its box is 1344 wide inside a
+   full-bleed frame; a gradient the width of that box has two visible vertical
+   edges. -100vw either side is clipped by the frame's own overflow: clip.
+   =========================================================================== */
+
+/*
+   3a. Measured: the cue reads 2.94:1 against the uplit hedge as the hero
+   parallaxes out from under its own scrim, and 5.1 at rest. A text-shadow
+   alone got it to 3.4 and no further — the hedge behind it is a continuous
+   band of warm light rather than a highlight, and a shadow can only separate
+   type from something it is not already sitting inside.
+
+   SO THE SCRIM GETS A FOOT. home.css fades it to transparent at the bottom of
+   the frame and estate.css's band stops at 86%; both are right for a house at
+   blue hour and wrong for a hedge with forty uplighters in it. ::before is
+   free — home.css uses neither pseudo-element on this node and estate.css uses
+   ::after — so this is one more layer over both rather than a restatement of
+   either, which is the rule estate.css §1b set for exactly this situation.
+*/
+.c-film-hero__scrim::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 46%;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom,
+        transparent,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 40%,
+        color-mix(in srgb, var(--mm-black-900) 78%, transparent));
+}
+
+/*
+   AND THE CUE GETS ITS OWN SHADOW UNDER IT. The scrim's foot brought it from
+   2.94 to 4.28 and stopping there would have meant deepening the whole bottom
+   half of the hero to protect eleven characters — which is the trade THE CLUB
+   declined at 4.46 and left in its limitations. This is the smaller lever: a
+   soft ellipse the size of the word, behind the word, and nowhere else on the
+   picture. The cue is already position: absolute with a z-index, so it has a
+   stacking context of its own and the wash lands between the film and the type
+   without a single other rule.
+*/
+.c-film-hero__cue::before {
+    content: "";
+    position: absolute;
+    inset: -1.5rem -3rem;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(ellipse at center,
+        color-mix(in srgb, var(--mm-black-900) 82%, transparent) 0%,
+        color-mix(in srgb, var(--mm-black-900) 46%, transparent) 45%,
+        transparent 78%);
+}
+
+.c-film-hero__cue {
+    text-shadow: 0 1px 18px color-mix(in srgb, var(--mm-black-900) 92%, transparent);
+}
+
+/* 3b */
+.c-film-band--full .c-film-band__overlay {
+    z-index: 1;
+}
+
+.c-film-band--full .c-film-band__overlay::before {
+    content: "";
+    position: absolute;
+    inset: -3.5rem -100vw 0;
+    z-index: -1;
+    pointer-events: none;
+
+    /* THE SCENE NUMBER IS THE TOP OF THE BOX AND IT IS WHERE THIS GRADIENT
+       USED TO BE WEAKEST. "05" measured 3.98 over the lit gravel path of the
+       park band on a wash that started at nothing and only reached 46% a third
+       of the way down. It starts at 26% now, at the top of the type rather
+       than above it. */
+    background-image: linear-gradient(to bottom,
+        transparent,
+        color-mix(in srgb, var(--mm-black-900) 36%, transparent) 20%,
+        color-mix(in srgb, var(--mm-black-900) 64%, transparent) 55%,
+        color-mix(in srgb, var(--mm-black-900) 80%, transparent));
+}
+
+/* The scene number is --ink-faint everywhere else and that is a cream at 55%
+   over a room. Over a hedge in sunlight it is the one element on the band that
+   does not clear AA; one step up is the whole fix. */
+.c-film-band--full .c-film-band__index {
+    color: var(--ink-muted);
+}
+
+
+/* ===========================================================================
+   4. Narrow — the real mobile pass
+   ---------------------------------------------------------------------------
+   Four decisions rather than a shrink:
+
+   - THE FULL-BLEED SEQUENCES STOP BEING 16:9 AND BECOME A HEIGHT. home.css
+     §14 takes the minimum height off a full band below 900px, which is right
+     for the Main Page — its bands are punctuation between long runs of type.
+     On this page four of the six screens ARE the bands, and 16:9 at 390px is
+     219 pixels: the scene title alone is two lines of 38px display type, so
+     the overlay filled the picture and the picture was a strip behind it.
+     62svh instead — 523px on a 844-tall handset, 635 on a 768 tablet — which
+     is a scene under a hero rather than a slot the copy has outgrown. It is
+     a height and not a ratio on purpose: a ratio that reads well at 390 is
+     nine hundred pixels tall at 767.
+   - THE 21:9 BAND IS NOT 21:9 EITHER. At 390px inside the gutters that frame
+     is about 350 wide and 21:9 of it is 150px — a letterbox strip with the
+     courts somewhere inside. The window becomes 3:2 and the picture is cropped
+     to it rather than fitted into it, held left so the clubhouse and its sign
+     stay in frame. It keeps a ratio rather than taking a height because it is
+     the one band with no overlay on it: nothing has to fit inside it, and 3:2
+     is the widest window that still reads as a panorama.
+   - THE FULL-BLEED SEQUENCES CROP LOW. home.css §14 takes the crop from the
+     upper half for the Main Page's bands, "architecture with sky above it".
+     Three of these four are landscape with a hedge along the bottom and the
+     sky is the least interesting third of every one of them.
+   - THE PLAN LOSES ITS LABELS AND KEEPS ITS DISCS, which is main.css's own
+     mobile pass for it and needs nothing here — but the legend it prints
+     instead is set in main.css's body scale on a cream page, and this one is
+     cream type on mahogany. It is given the film's measure and colour.
+   - THE PLATES STOP OVERLAPPING. home.css already drops the offsets below
+     900px; the raise goes with them, because a portrait plate lifted four
+     pixels above a landscape one is not a composition.
+   =========================================================================== */
+
+@media (max-width: 899px) {
+
+    .c-film-band--full .c-film-band__frame {
+        aspect-ratio: auto;
+        height: 62vh;
+        height: 62svh;
+    }
+
+    .c-film-band--wide .c-film-band__frame {
+        aspect-ratio: 3 / 2;
+    }
+
+    .c-film-band--wide .c-film-band__still img {
+        object-position: 26% center;
+    }
+
+    .c-film-band--full .c-film-band__still img,
+    .c-film-band--full .c-film-band__video {
+        object-position: center 56%;
+    }
+
+    /*
+       AND THE OVERLAY'S WASH IS DEEPER HERE, because the box it hangs on is a
+       different shape. "The side of it nobody plays on." is one line at 1440
+       and two at 375, so the overlay is half as tall again and the scene number
+       at the top of it sits where a gradient tuned for a desktop has barely
+       started. Measured: 4.11 at 375 and 4.32 at 390 on the park band, against
+       4.66 at 1440 on the same picture. The number is the same, the ground is
+       the same, and only the distance from the top of the box changed.
+    */
+    .c-film-band--full .c-film-band__overlay::before {
+        background-image: linear-gradient(to bottom,
+            transparent,
+            color-mix(in srgb, var(--mm-black-900) 54%, transparent) 15%,
+            color-mix(in srgb, var(--mm-black-900) 74%, transparent) 50%,
+            color-mix(in srgb, var(--mm-black-900) 86%, transparent));
+    }
+
+    .c-act .c-plan-padel {
+        padding-block: 0 var(--scene-tight);
+    }
+}
+
+@media (max-width: 767.98px) {
+
+    .c-act ol.c-plan-padel__legend {
+        max-inline-size: var(--text);
+        margin-block-start: clamp(2rem, 6vw, 3rem);
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--ink-muted);
+    }
+
+    .c-act .c-plan-padel__legend li::marker {
+        color: var(--gold-ink);
+    }
+}
+
+/*
+   THE HERO'S CROP, AND IT IS SIDEWAYS RATHER THAN UP. home.css §14 pulls a
+   portrait crop up to 38% because the Main Page's film is a house with a roof
+   to keep, and the interesting part of a house is the top of it. This film is
+   a path running away down the middle of the frame with the clubhouse and its
+   sign at the far left — and a 390px window on a 16:9 sequence keeps about a
+   quarter of its width. 48% is a small move and it is the difference between a
+   phone hero and a collision: at the centre the clubhouse fascia lands directly
+   behind PLAY, and two pieces of lettering in one place is the mistake this
+   page already made once and moved a whole sequence to fix. Four points right
+   of it, the fascia is out of frame and what stands behind the type is the run
+   of glazed courts, the floodlights and the uplit hedge.
+
+   The vertical value does nothing at 390, 430 or 768, where a 16:9 source
+   covering a portrait window is cropped on the horizontal only. It is set for
+   the short landscape viewports between them, where it is the hedge rather
+   than the sky that has to survive.
+*/
+@media (max-width: 619px) {
+    .c-film-hero__still,
+    .c-film-hero__still img,
+    .c-film-hero__video {
+        object-position: 48% 60%;
+    }
+}

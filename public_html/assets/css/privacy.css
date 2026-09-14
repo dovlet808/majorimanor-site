@@ -1,0 +1,932 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — privacy.css
+
+   THE QUIET SIDE OF THE ESTATE.
+
+   WHAT THIS FILE IS NOT. It is not a second design system, and it is not a
+   second legal stylesheet: main.css §7's .c-clause still draws /terms and is
+   not touched here. This page loads home.css for the chrome and the hero and
+   adds one thing to it — a document.
+
+   WHY IT TAKES NO estate.css. It is the first page since the Main Page to load
+   only two layers, and the reason is that it draws none of the film's
+   furniture: no acts, no walk, no ledger, no lateral track, no dialogue, no
+   plates, no world, no invitation. Loading five hundred lines of act grounds
+   for a page with one ground would be five hundred lines matching nothing.
+
+   THE PAGE IS TWO TEMPERATURES AND THE BRIEF NAMED BOTH:
+
+       hero        near-black    the film's own ground, one screen of it
+       document    warm cream    the reading surface — 90% of the page
+       index       deep green    a panel standing on the cream
+       footer      the footer's  --green-900, as on every other page
+
+   THE CREAM IS THE POINT. Every other page on this site is dark from the first
+   screen to the last, because every other page is a film. A privacy policy is
+   read, not watched, and two and a half thousand words of cream type on
+   near-black is a page nobody finishes. So the document takes main.css's own
+   daylight palette — the same cream, the same near-black ink, the same
+   gold-ink that is the only gold allowed on cream — and the film keeps the
+   hundred pixels at the top and the footer at the bottom.
+
+   Layer order, strictly:
+
+     1. tokens        — the document's own, and why they are not the film's
+     2. hero          — clamped, and the type on it re-scaled
+     3. document      — the band, the grid, the join
+     4. index         — the green panel, sticky on desktop
+     5. clause        — the rule, the number, the measure, the list
+     6. notice        — the controller gap, as a notice rather than an error
+     7. foot          — the date and the way back
+     8. narrow        — the real mobile pass
+     9. motion        — what moves, and what happens when nothing does
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. Tokens
+   ---------------------------------------------------------------------------
+   THE DOCUMENT CANNOT USE THE FILM'S NAMES AND THIS IS THE WHOLE REASON WHY.
+
+   home.css §1 redefines --ink to #F2ECE0, because on a film page ink is cream.
+   main.css defines --ink as #101511, because on the rest of the site ink is
+   near-black. home.css loads second, so on this page var(--ink) is cream — and
+   cream ink on a cream document is an invisible policy.
+
+   So the document declares its own five names and reads none of the two files'
+   semantic layer. Every value below is main.css's primitive, quoted rather
+   than referenced where the reference would be shadowed, with the measured
+   ratio beside it. Nothing here is a new brand colour.
+   =========================================================================== */
+
+.c-legal {
+    /* -- ground ----------------------------------------------------------- */
+    --pv-paper:      #F2EDE4;   /* main.css --cream */
+    --pv-paper-deep: #E9E2D6;   /* between --cream and --cream-deep: the notice */
+    --pv-green:      #123328;   /* main.css --green-900 — the index panel */
+
+    /* -- ink -------------------------------------------------------------- */
+    /* NOT var(--ink): home.css shadows that name to cream. See the note above. */
+    --pv-ink:        #101511;   /* 15.8:1 on paper */
+    --pv-ink-soft:   #4A5148;   /* 7.0:1 on paper — main.css --ink-soft */
+    --pv-gold-ink:   #7A5C24;   /* 5.3:1 on paper — the only gold allowed here */
+    --pv-wine:       #7B1E2B;   /* 7.9:1 on the notice — main.css --wine-800 */
+
+    /* -- ink on the green panel ------------------------------------------- */
+    --pv-on-green:      #F2EDE4;   /* 11.8:1 */
+    --pv-on-green-soft: #A9B5AB;   /* 6.5:1 — an index link at rest */
+    --pv-gold:          #CBA96A;   /* 6.2:1 — the numbers */
+    --pv-gold-soft:     #E0C894;   /* 8.4:1 — the number of the clause in view */
+
+    /* -- rules ------------------------------------------------------------- */
+    --pv-rule:      color-mix(in srgb, #101511 14%, transparent);
+    --pv-rule-soft: color-mix(in srgb, #101511 8%, transparent);
+    --pv-rule-gold: color-mix(in srgb, #7A5C24 34%, transparent);
+    --pv-rule-green: color-mix(in srgb, #F2EDE4 16%, transparent);
+
+    /* -- measure -----------------------------------------------------------
+       THE READING COLUMN IS 37rem AND THE BRIEF ASKED FOR THAT TWICE — "wide
+       but readable" and "do NOT make the reading column too narrow". At the
+       document's 1.0625–1.1875rem body that is 66–70 characters, the top of
+       the comfortable range rather than the middle of it. main.css's --measure
+       is 34rem, which is right for a caption under a photograph and one line
+       short for a clause. --pv-margin is the strip the clause numbers hang in
+       on a wide screen; below 1240px they sit above the title instead. */
+    --pv-measure: 37rem;
+    --pv-margin:  4.5rem;
+    --pv-gap:     1.75rem;
+
+    /* The space between clauses. Generous, because the brief asked for it and
+       because twelve headings at --space-9 read as one long paragraph. */
+    --pv-clause-space: clamp(3rem, 5.5vw, 4.75rem);
+}
+
+/*
+   The anchor the foot of the document points back at. It has no box and no
+   text; tabindex="-1" is what lets the keyboard land on it as well as the
+   viewport. See the note in templates/pages/privacy.php.
+*/
+.u-anchor {
+    display: block;
+    height: 0;
+}
+
+/*
+   WHERE AN ANCHOR LANDS, AND WHY IT IS ONE PROPERTY AND NOT TWO.
+
+   The bar is fixed, so anything the browser scrolls to arrives under it unless
+   it is told otherwise. scroll-padding on the scrolling element is the general
+   answer — it applies to a hash typed into the address bar, a link arriving
+   from another site, an anchor clicked in the index, and the browser's own
+   scrolling when the keyboard moves focus, which is what WCAG 2.2's Focus Not
+   Obscured asks for.
+
+   IT IS NOT ALSO SET AS scroll-margin ON THE CLAUSES, AND THAT WAS THE FIRST
+   VERSION. The two add up: 7rem of padding plus 7rem of margin plus the
+   clause's own 76px of space above its rule put a heading 318px down a 900px
+   window, with a quarter of a screen of empty paper above it. One of them, at
+   6rem, lands the rule just under the bar and the heading a comfortable
+   hundred pixels below that. Measured, in docs/PRIVACY.md §7.
+*/
+html {
+    scroll-padding-block-start: 6rem;
+}
+
+
+/* ===========================================================================
+   2. The hero, clamped
+   ---------------------------------------------------------------------------
+   50–70vh, says the brief, "rather than a huge cinematic full-screen
+   experience", and "do not let the hero consume too much vertical space before
+   the legal document begins". 62svh with a floor and a ceiling: the floor
+   stops it collapsing on a landscape phone, and the ceiling stops a 4K panel
+   turning 62% into eight hundred pixels of joinery.
+
+   THE TYPE COMES DOWN WITH IT. home.css sets the film title at up to 8.25rem,
+   which is right for one word over a whole screen and absurd for PRIVACY
+   POLICY over two thirds of one. At 1440px this sets about 4.6rem — large,
+   quiet, and unmistakably the same face on the same photograph.
+   =========================================================================== */
+
+.c-film-hero {
+    min-height: max(24rem, min(62svh, 40rem));
+    padding-bottom: clamp(2.5rem, 6vh, 4.25rem);
+}
+
+.c-film-hero__title {
+    font-size: clamp(2rem, 5.4vw, 4.6rem);
+    letter-spacing: 0.075em;
+}
+
+/*
+   The lede is the one sentence that says what the document is for, and on this
+   page it is doing a job rather than setting a mood. Slightly larger than the
+   film's statement, and wider, so it sets in two lines rather than four.
+*/
+.c-film-hero__statement {
+    max-width: 34rem;
+    font-size: clamp(0.95rem, 1.15vw, 1.075rem);
+    color: var(--ink);
+}
+
+/*
+   THE SCRIM, FOR A PICTURE THAT IS LIT FROM THE SIDE RATHER THAN FROM ABOVE.
+
+   home.css's stack darkens the top and the bottom and leaves the middle alone,
+   which is right over a facade at blue hour. This photograph is an interior at
+   first light: the bright parts of it are the plastered wall at the left, the
+   windows and the glass of the screen, and they are at mid height. This is one
+   pseudo-element over home.css's stack — a layer, not a replacement, so
+   home.css stays the only place the hero's own scrim is described.
+*/
+.c-film-hero__scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--mm-black-900) 26%, transparent) 34%,
+        color-mix(in srgb, var(--mm-black-900) 48%, transparent) 62%,
+        color-mix(in srgb, var(--mm-black-900) 44%, transparent) 82%,
+        transparent 96%);
+}
+
+@media (max-width: 899px) {
+    .c-film-hero__scrim::after {
+        background-image: linear-gradient(to bottom,
+            transparent 0%,
+            color-mix(in srgb, var(--mm-black-900) 32%, transparent) 30%,
+            color-mix(in srgb, var(--mm-black-900) 54%, transparent) 60%,
+            color-mix(in srgb, var(--mm-black-900) 50%, transparent) 82%,
+            transparent 96%);
+    }
+}
+
+
+/* ===========================================================================
+   3. The document
+   ---------------------------------------------------------------------------
+   The band, the grid, and the join between the film and the page.
+
+   THE JOIN IS A GOLD HAIRLINE AND IT IS THE ONLY ORNAMENT ON THIS PAGE. The
+   hero's scrim resolves to solid near-black at its foot and the document is
+   cream, so the edge between them is hard whatever is done to it. One gold
+   line makes it deliberate — a sheet of paper laid on a dark table — and it is
+   the same gold the eyebrow above it is set in.
+
+   THE GRID IS TWO COLUMNS AND IT ONLY EXISTS ABOVE 1080px. Below that the
+   index is a band and the document is under it, which is the source order, so
+   nothing has to be re-ordered for a screen reader or for a printer.
+   =========================================================================== */
+
+.c-legal {
+    position: relative;
+    z-index: 1;
+    background-color: var(--pv-paper);
+    color: var(--pv-ink);
+    border-block-start: 1px solid var(--pv-rule-gold);
+    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(3.5rem, 7vw, 6.5rem);
+    padding-inline: var(--gutter);
+}
+
+.c-legal__inner {
+    max-width: var(--shell);
+    margin-inline: auto;
+}
+
+@media (min-width: 1080px) {
+    .c-legal__inner {
+        display: grid;
+        grid-template-columns: minmax(13rem, 16rem) minmax(0, auto);
+        gap: clamp(2.5rem, 5vw, 5rem);
+        justify-content: center;
+        align-items: start;
+    }
+}
+
+.c-legal__doc {
+    max-width: var(--pv-measure);
+}
+
+@media (min-width: 1240px) {
+    /* The clause numbers move out into their own strip. See §5. */
+    .c-legal__doc {
+        max-width: calc(var(--pv-measure) + var(--pv-gap) + var(--pv-margin));
+    }
+}
+
+/*
+   LINKS INSIDE THE POLICY ARE UNDERLINED, ALWAYS. A legal document that marks
+   its links by colour alone marks them for one kind of reader — and three of
+   the links in this one are the reader's way to exercise a right.
+
+   THE SELECTOR IS THE DOCUMENT AND NOT THE BAND. .c-legal a would also catch
+   the contents index and the way back, which are navigation and are drawn as
+   navigation; scoping it to the clause is what keeps a table of contents from
+   turning into twelve underlined sentences.
+*/
+.c-legal-clause a {
+    color: var(--pv-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--pv-gold-ink);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition: text-decoration-thickness var(--dur) var(--ease),
+                color var(--dur) var(--ease);
+}
+
+.c-legal-clause a:hover {
+    color: var(--pv-gold-ink);
+    text-decoration-thickness: 2px;
+}
+
+.c-legal :focus-visible {
+    outline: 2px solid var(--pv-gold-ink);
+    outline-offset: 3px;
+    border-radius: 1px;
+}
+
+
+/* ===========================================================================
+   4. The index
+   ---------------------------------------------------------------------------
+   ONE ELEMENT, TWO BEHAVIOURS. Below 1080px it is a green band between the
+   hero and the document — the brief's "small top-level legal navigation" for a
+   phone. Above 1080px the same element is the sticky index in the left column.
+   It is never duplicated and never hidden, so the policy's twelve headings
+   appear in the accessibility tree exactly once.
+
+   THE PANEL IS THE BRIEF'S GREEN. --green-900 is the estate's darkest daylight
+   ground and the one colour on this site that has always meant "official". It
+   stands on the cream rather than replacing it, which is how the document
+   stays light while the rhythm still goes cream -> green -> cream.
+   =========================================================================== */
+
+.c-legal-index {
+    background-color: var(--pv-green);
+    color: var(--pv-on-green);
+    border-block-start: 2px solid var(--pv-gold);
+    padding: clamp(1.4rem, 3vw, 1.9rem) clamp(1.25rem, 2.6vw, 1.6rem);
+    margin-block-end: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+@media (min-width: 1080px) {
+    .c-legal-index {
+        position: sticky;
+        /* Clears the compact bar, and matches scroll-padding above. */
+        top: 6rem;
+        margin-block-end: 0;
+        /*
+           It scrolls inside itself when it has to, and on a laptop it does not
+           have to. Twelve rows, the label and the date come to about 700px;
+           this leaves 764 in a 900px window. Below that — a 800px window, a
+           reader who has enlarged the type — the panel scrolls rather than
+           being cut off, and overscroll-behavior stops that reaching the page.
+        */
+        max-height: calc(100svh - 8.5rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    /* Slightly tighter than on a phone: a mouse does not need 40px of target,
+       and four of the twelve titles wrap to two lines at this width. */
+    .c-legal-index__link {
+        padding-block: 0.5rem;
+    }
+}
+
+.c-legal-index__label {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--pv-gold);
+}
+
+/*
+   The date, at the head of the panel. It is the second thing anybody wants
+   from a policy and the foot of a long document is a long way to scroll for
+   it. Same string and same <time> as the foot — see legal-index.php.
+*/
+.c-legal-index__updated {
+    margin: 0.85rem 0 0;
+    padding-block-end: 1.1rem;
+    border-block-end: 1px solid var(--pv-rule-green);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--pv-on-green-soft);
+}
+
+.c-legal-index__updated time {
+    display: block;
+    color: var(--pv-on-green);
+}
+
+.c-legal-index__list {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    counter-reset: none;
+}
+
+.c-legal-index__list--sub {
+    margin-block: 0.15rem 0.35rem;
+    /* The indent is drawn from the nested list rather than from a class, which
+       is why the markup nests. */
+    padding-inline-start: 2.4rem;
+}
+
+.c-legal-index__link {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0 0.35rem;
+    /* 40px of target on a phone, which is over the 24px WCAG minimum for web
+       and inside the 8px-apart rule for adjacent targets. */
+    padding-block: 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--pv-on-green-soft);
+    text-decoration: none;
+    transition: color var(--dur) var(--ease);
+}
+
+.c-legal-index__list--sub .c-legal-index__link {
+    grid-template-columns: minmax(0, 1fr);
+    font-size: 0.8125rem;
+    padding-block: 0.45rem;
+}
+
+.c-legal-index__n {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 1.7;
+    color: var(--pv-gold);
+    transition: color var(--dur) var(--ease);
+}
+
+.c-legal-index__link:hover,
+.c-legal-index__link:focus-visible {
+    color: var(--pv-on-green);
+}
+
+.c-legal-index__link:hover .c-legal-index__n {
+    color: var(--pv-gold-soft);
+}
+
+.c-legal-index :focus-visible {
+    outline: 2px solid var(--pv-gold-soft);
+    outline-offset: 2px;
+}
+
+/*
+   TWO COLUMNS IN THE ONE RANGE WHERE THE PANEL IS BOTH WIDE AND IN THE FLOW.
+
+   Below 600px it is a full-bleed band on a phone and one column is the only
+   column there is room for. Above 1080px it is the sticky index in a 16rem
+   gutter and one column is the only one that fits. Between the two it is a
+   700px panel with ten short lines down its left edge and half of it empty,
+   which is a block of green rather than a table of contents. Two columns halve
+   its height and fill it, and the nested sub-list still hangs under the clause
+   it belongs to because it is inside that clause's own grid item.
+*/
+@media (min-width: 600px) and (max-width: 1079px) {
+    .c-legal-index__list:not(.c-legal-index__list--sub) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 clamp(1.5rem, 4vw, 3rem);
+        align-items: start;
+    }
+}
+
+/*
+   THE CLAUSE THE READER IS IN. privacy.js adds this and nothing else, and the
+   page is complete without it: every link is an ordinary anchor and the panel
+   is a table of contents whether or not the mark ever arrives.
+
+   It is the hover state, held — the same colour, not moving — plus one gold
+   hairline in the margin. No pill, no dot, no weight change: a document index
+   that redraws itself as the reader scrolls is a distraction on the one page
+   where reading is the whole job.
+*/
+.c-legal-index__link.is-current {
+    color: var(--pv-on-green);
+}
+
+.c-legal-index__link.is-current .c-legal-index__n {
+    color: var(--pv-gold-soft);
+}
+
+.c-legal-index__item {
+    position: relative;
+}
+
+.c-legal-index__item::before {
+    content: "";
+    position: absolute;
+    inset-block: 0.35rem;
+    inset-inline-start: -0.85rem;
+    width: 2px;
+    background-color: var(--pv-gold-soft);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+}
+
+.c-legal-index__item:has(> .is-current)::before {
+    opacity: 1;
+}
+
+
+/* ===========================================================================
+   5. The clause
+   ---------------------------------------------------------------------------
+   A rule, a number, a heading, and a column of text at a reading measure.
+
+   THE NUMBER HANGS IN THE MARGIN ABOVE 1240px, which is the brief's "subtle
+   page metadata" on the right rather than a second navigation. It is the
+   oldest device in legal typesetting and it costs no script, no observer and
+   no element that means nothing without one. Below 1240px it sits above the
+   title, where a narrow column can carry it.
+
+   THE RULE IS A HAIRLINE AND NOT A BORDER. Twelve full-strength rules down a
+   cream page read as a table; at 14% they read as the seams of a document.
+   =========================================================================== */
+
+.c-legal-clause {
+    padding-block-start: var(--pv-clause-space);
+    border-block-start: 1px solid var(--pv-rule);
+}
+
+/* The first clause opens on the page rather than under a rule: there is
+   nothing above it for a seam to join. */
+.c-legal-clause:first-child {
+    padding-block-start: 0;
+    border-block-start: 0;
+}
+
+.c-legal-clause__head {
+    display: grid;
+    gap: 0.55rem;
+    margin-block-end: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+.c-legal-clause__title {
+    margin: 0;
+    max-width: var(--pv-measure);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    font-size: clamp(1.45rem, 1.15rem + 1.2vw, 2.15rem);
+    line-height: 1.18;
+    letter-spacing: -0.006em;
+    color: var(--pv-ink);
+    text-wrap: balance;
+}
+
+/*
+   THE NUMBER IS AFTER THE HEADING IN THE MARKUP AND ABOVE IT ON THE PAGE.
+
+   The <h2> comes first in source because it is the clause's name and the thing
+   a screen reader should reach first; the number is aria-hidden and carries no
+   information the index does not carry better. `order` moves it visually
+   without moving it in the document, which is exactly the case that property
+   is for — and it is safe here because the two are not in reading order
+   relative to one another for anybody who is not looking at them.
+*/
+.c-legal-clause__index {
+    order: -1;
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    color: var(--pv-gold-ink);
+}
+
+@media (min-width: 1240px) {
+    .c-legal-clause__head {
+        grid-template-columns: var(--pv-measure) var(--pv-margin);
+        gap: 0 var(--pv-gap);
+        align-items: baseline;
+    }
+
+    .c-legal-clause__title {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    /* Explicitly placed, so `order` has nothing left to do. */
+    .c-legal-clause__index {
+        order: 0;
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+/*
+   A SUB-CLAUSE IS PART OF THE CLAUSE ABOVE IT AND IS SET AS ONE. It is inside
+   its parent <section>, it takes no number, it opens on a softer rule and a
+   smaller gap, and its heading is the body face rather than the display one —
+   which is main.css §7's own rule for h3 in a legal document, kept.
+*/
+.c-legal-clause--sub {
+    margin-block-start: clamp(2rem, 3.5vw, 2.75rem);
+    padding-block-start: clamp(1.5rem, 2.6vw, 2rem);
+    border-block-start: 1px solid var(--pv-rule-soft);
+}
+
+.c-legal-clause--sub .c-legal-clause__title {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+}
+
+.c-legal-clause--sub .c-legal-clause__head {
+    margin-block-end: clamp(0.9rem, 1.6vw, 1.2rem);
+}
+
+/* -- the body ------------------------------------------------------------- */
+
+/*
+   THE ONE PLACE ON THIS SITE WHERE READABILITY BEATS EVERY OTHER
+   CONSIDERATION, and the brief says so in four separate paragraphs. 17px at
+   the narrow end and 19px at the wide one, 1.75 line-height, 66–70 characters,
+   and a paragraph gap that is bigger than the line gap by enough to see.
+   Nothing here is tracked, condensed, italicised or set in the display face.
+*/
+.c-legal-clause__body {
+    max-width: var(--pv-measure);
+    /* The site's <html> is 17px, not 16, so a rem here is 17px: this sets
+       18px on a phone and a shade over 19.5 on a desktop. */
+    font-size: clamp(1.0625rem, 1.02rem + 0.2vw, 1.15rem);
+    line-height: 1.75;
+    color: var(--pv-ink);
+}
+
+/*
+   :where() SO THE RESET CANNOT OUT-SPECIFY THE RHYTHM. `.c-legal-clause__body p`
+   is one class and one type and would beat `> * + *`, which is one class and
+   two universals — and the paragraphs would sit a line apart instead of a
+   paragraph apart. Inside :where() the reset weighs nothing and the rule below
+   it wins on order, which is where it should be won.
+*/
+.c-legal-clause__body :where(p, ul) {
+    margin: 0;
+}
+
+.c-legal-clause__body > * + * {
+    margin-block-start: 1.25em;
+}
+
+.c-legal-clause__body p {
+    /* Long legal sentences with long place names in them; hyphenation is the
+       difference between an even column and four rivers down it. */
+    hyphens: auto;
+}
+
+.c-legal-clause__list {
+    margin: 0;
+    padding-inline-start: 1.35rem;
+    list-style: none;
+}
+
+.c-legal-clause__list li {
+    position: relative;
+    padding-inline-start: 0.35rem;
+}
+
+.c-legal-clause__list li + li {
+    margin-block-start: 0.55rem;
+}
+
+/* The one coloured mark in the document: a list in a legal page is usually the
+   part somebody came for. A rule rather than a bullet, because the items are
+   fields on a form and read as a schedule. */
+.c-legal-clause__list li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -1.35rem;
+    inset-block-start: 0.82em;
+    width: 0.7rem;
+    height: 1px;
+    background-color: var(--pv-gold-ink);
+}
+
+
+/* ===========================================================================
+   6. The notice
+   ---------------------------------------------------------------------------
+   The controller's legal name, registration number and registered address have
+   not been supplied by the owner (ARCHITECTURE §21, open question 4), and the
+   policy prints the gap rather than filling it with something plausible.
+
+   THE BRIEF ASKED FOR EXACTLY THIS AND NOTHING MORE: "Preserve the existing
+   notice exactly. Visually improve it with: subtle border, warm paper-like
+   surface, elegant label, sufficient contrast. Do NOT visually hide or
+   de-emphasize legally important information."
+
+   So the sentence is untouched, the label is still the word TODO from
+   common.php, and what changed is the treatment: it was a dashed --danger box,
+   which reads as a validation error, and it is now a warmer sheet of the same
+   paper with a wine edge down the side. Wine on this ground measures 7.9:1 and
+   the body text on it 14.3:1 — both above the 4.5:1 line by a wide margin,
+   which is the "sufficient contrast" the brief asks for and the reason the
+   panel is not a tint of the ground.
+   =========================================================================== */
+
+.c-legal-note {
+    margin-block-start: 1.6em;
+    padding: clamp(1.15rem, 2.2vw, 1.5rem) clamp(1.15rem, 2.2vw, 1.6rem);
+    background-color: var(--pv-paper-deep);
+    border: 1px solid color-mix(in srgb, var(--pv-ink) 12%, transparent);
+    border-inline-start: 3px solid var(--pv-wine);
+}
+
+.c-legal-note__label {
+    margin: 0 0 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--pv-wine);
+}
+
+.c-legal-note__body {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--pv-ink);
+}
+
+
+/* ===========================================================================
+   7. The foot
+   ---------------------------------------------------------------------------
+   When the document last changed, and the way back to the top. Both are fine
+   print under a hairline, which is this site's own treatment for the line at
+   the end of a legal page — main.css's .p-legal__updated, at the same size
+   under the same rule.
+
+   THE WAY BACK IS ONE LINK AND IT NEEDS NO SCRIPT. A floating control that
+   appears on scroll would be a second navigation that does not exist until
+   JavaScript says so; this is at the end of the document, where a reader who
+   has finished it is standing.
+   =========================================================================== */
+
+.c-legal__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    max-width: var(--pv-measure);
+    margin-block-start: clamp(3rem, 5.5vw, 4.75rem);
+    padding-block-start: 1.5rem;
+    border-block-start: 1px solid var(--pv-rule);
+    font-size: 0.875rem;
+    color: var(--pv-ink-soft);
+}
+
+.c-legal__updated {
+    margin: 0;
+}
+
+.c-legal__updated time {
+    color: var(--pv-ink);
+}
+
+.c-legal__top {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--pv-gold-ink);
+    text-decoration: none;
+}
+
+/* It is a control rather than a reference, so the rule arrives on hover and on
+   focus instead of standing under it — which is the film navigation's own
+   behaviour, in the document's colour. */
+.c-legal__top:hover,
+.c-legal__top:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+}
+
+
+/* ===========================================================================
+   8. Narrow
+   ---------------------------------------------------------------------------
+   The mobile pass, and there is very little of it, which is the measure of
+   whether the layout above was built the right way round. The document is one
+   column at every width; what changes is the space around it.
+   =========================================================================== */
+
+@media (max-width: 599px) {
+    .c-legal {
+        /* The gutter is the film's, which is right for a full-bleed
+           photograph and tight for a page of text on a 390px phone. */
+        padding-inline: max(var(--gutter), 1.35rem);
+
+        /*
+           THE BAND MEETS THE PHOTOGRAPH, AND THAT IS THE BRIEF'S RHYTHM RATHER
+           THAN A SAVED THIRTY PIXELS. With the document's own top padding in
+           place a phone shows black, then a 35px strip of cream, then green,
+           then cream again — four grounds in half a screen, and the strip
+           reads as a gap rather than as a page. Dropping it gives the sequence
+           the brief actually asks for: dark hero, green legal navigation, warm
+           cream document. The index's own gold rule becomes the join.
+        */
+        padding-block-start: 0;
+        border-block-start: 0;
+    }
+
+    .c-legal-index {
+        /* Edge to edge: the panel is a band on a phone, and a band with a
+           margin at the sides is a card, which it is not. */
+        margin-inline: calc(-1 * max(var(--gutter), 1.35rem));
+        padding-inline: max(var(--gutter), 1.35rem);
+    }
+
+    .c-legal-clause__body {
+        /* 17px, and not a step below it — the brief: "Do not make legal copy
+           tiny." */
+        font-size: 1.0625rem;
+        line-height: 1.72;
+    }
+
+    .c-legal__foot {
+        /* Two lines rather than a squeezed row. */
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* The film's own bar hides its links below 900px and puts them in a sheet; the
+   document needs nothing from that, and the only thing that changes here is
+   that the sticky index has already become a band at 1080px. */
+
+
+/* ===========================================================================
+   9. Motion
+   ---------------------------------------------------------------------------
+   THE RULE THIS PAGE ADDS TO home.css §13: NOTHING IN THE DOCUMENT MOVES, AND
+   NOTHING IN IT IS EVER HIDDEN BY ANYTHING.
+
+   The brief is explicit — "The legal content must never depend on JavaScript
+   animation to become visible" and "All legal text must remain visible with
+   JavaScript OFF and prefers-reduced-motion enabled." So no element of the
+   document carries [data-reveal], home.js therefore never takes responsibility
+   for one, and there is no opacity anywhere below §3 for a script to put back.
+   What moves on this page is the hero's photograph and nothing else.
+
+   SMOOTH SCROLLING IS FOR THE READER WHO HAS NO LENIS. With the motion layer
+   running, home.js intercepts every in-page anchor and eases it; adding CSS
+   smoothing on top of that makes the library fight the browser. html.motion is
+   set by head.php exactly when that layer is being fetched, so this rule
+   applies precisely to the readers Lenis will never reach — and not at all to
+   a reader who asked for less motion, who gets the browser's own jump.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+    html:not(.motion) {
+        scroll-behavior: smooth;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .c-legal-index__link,
+    .c-legal-index__n,
+    .c-legal-index__item::before,
+    .c-legal a {
+        transition: none;
+    }
+}
+
+/*
+   THE ONE ENTRANCE ON THE PAGE, AND IT IS THE STYLESHEET'S RATHER THAN A
+   SCRIPT'S. home.css keys the hero's rise to html.motion, which head.php only
+   sets when it is fetching GSAP — and this page fetches none, so without this
+   the first screen would simply appear. Three lines lifting a centimetre over
+   nine tenths of a second is the "subtle text reveal" the brief allows, it runs
+   on the stylesheet alone, and it is inside a no-preference query, so a reader
+   who has asked for less motion is shown the finished screen and nothing else.
+
+   NOTHING IN THE DOCUMENT IS IN THIS LIST. The rule above this one is the
+   contract: no legal text is ever at opacity 0, for any reason, at any moment.
+*/
+@media (prefers-reduced-motion: no-preference) {
+    .c-film-hero__eyebrow,
+    .c-film-hero__title,
+    .c-film-hero__statement {
+        animation: mm-rise 0.9s var(--ease) backwards;
+    }
+
+    .c-film-hero__eyebrow   { animation-delay: 0.08s; }
+    .c-film-hero__title     { animation-delay: 0.18s; }
+    .c-film-hero__statement { animation-delay: 0.34s; }
+}
+
+
+/* ===========================================================================
+   10. The chrome, without a script
+   ---------------------------------------------------------------------------
+   THE BAR IS TRANSPARENT UNTIL SOMETHING MAKES IT SOLID, AND ON THIS PAGE THAT
+   MATTERS MORE THAN ON THE OTHER NINE. They are dark from the first screen to
+   the last, so a bar of cream type floating over them is legible wherever it
+   ends up. This one is cream from the hero down, and cream type on cream is
+   nothing at all.
+
+   With JavaScript, privacy.js adds .is-compact at the foot of the hero exactly
+   as home.js does on the film pages. Without it — no .has-js, because head.php
+   sets that class synchronously and only a reader with scripting off is
+   missing it — the bar starts solid and stays there. Markup first, script
+   last, which is partials/header.php's own order of trust.
+   =========================================================================== */
+
+html:not(.has-js) .c-film-nav {
+    padding-block: clamp(0.7rem, 1.2vw, 1rem);
+    background-color: color-mix(in srgb, var(--ground) 92%, transparent);
+    border-bottom-color: var(--hairline);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+html:not(.has-js) .c-film-nav::before {
+    opacity: 0;
+}
+
+/*
+   AND THE LINKS COME BACK. home.css hides them below 900px and shows the
+   button instead — but the button is home.js's, and a reader with no script
+   has neither. On a film page the way out is the footer; on a legal page,
+   where somebody may have arrived from a form to read one clause and then go
+   back, a navigation that only exists at the bottom of the document is not
+   good enough. So the row returns and wraps. It is taller than the bar is
+   meant to be, and it is the difference between a page with navigation and a
+   page without.
+*/
+@media (max-width: 899px) {
+    html:not(.has-js) .c-film-nav__links,
+    html:not(.has-js) .c-film-nav__action {
+        display: block;
+    }
+
+    html:not(.has-js) .c-film-nav__inner {
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+    }
+
+    html:not(.has-js) .c-film-nav__links ul {
+        flex-wrap: wrap;
+        gap: 0.15rem 1.1rem;
+    }
+}

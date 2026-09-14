@@ -1,0 +1,1638 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — home.css
+
+   THE MAIN PAGE'S WORLD, AND ONLY THE MAIN PAGE'S. head.php links this file
+   behind current_page() === 'home', so nothing in it can reach another page
+   and it needs no scoping selector to be safe. The other pages render byte for
+   byte as they did before it existed.
+
+   It also means main.css is not touched by any of this work. asset_url()
+   cache-busts on filemtime, so one character changed there would re-version
+   the stylesheet in the markup of all eleven pages.
+
+   Layer order, strictly:
+
+     1. tokens          — primitive, then semantic
+     2. ground          — the six mood variables, overridden for this page
+     3. grain           — the one texture the whole page stands on
+     4. type            — the film's scale
+     5. navigation
+     6. hero
+     7. band            — the five cinematic sequences
+     8. chapter         — the spoken parts
+     9. plates          — the twelve-column editorial grid
+    10. world           — the index of eight
+    11. invitation
+    12. footer
+    13. motion          — reveal states, and what happens without them
+    14. narrow          — the real mobile pass
+
+   NOTHING BELOW LOADS FROM AN EXTERNAL HOST. The two faces are the ones
+   main.css already declares and head.php already preloads: Playfair Display
+   for display, Inter for everything else. No second family arrives for this
+   page.
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. Tokens
+   ---------------------------------------------------------------------------
+   Primitive first, semantic second, and the semantic layer is the only one
+   anything below §2 is allowed to read. That is what lets the whole page be
+   regraded — warmer, colder, less gold — by editing one block.
+
+   THE ACCENT IS MEASURED, NOT CHOSEN BY EYE. --gold on --black-900 measures
+   8.6:1, which clears WCAG AA for body text and AAA for large. It is used at
+   small sizes here (the eyebrows, the plate captions) and that is only safe
+   because the ground under it is this dark; the same gold on cream measures
+   1.9:1, which is why main.css forbids it there.
+   =========================================================================== */
+
+:root {
+    /* -- primitive: ground ------------------------------------------------ */
+    --mm-black-900: #0B0A08;   /* the page */
+    --mm-black-800: #100E0C;   /* a raised scene */
+    --mm-black-700: #16130F;   /* a plate's ground before its picture loads */
+    --mm-mahogany:  #241812;   /* the one warm ground, used once */
+
+    /* -- primitive: ink --------------------------------------------------- */
+    --mm-cream-100: #F2ECE0;
+    --mm-cream-300: #B6AA96;
+    --mm-cream-500: #8B8172;
+
+    /* -- primitive: accent ------------------------------------------------ */
+    --mm-gold-300:  #E0C68F;
+    --mm-gold-500:  #C9A961;
+    --mm-gold-700:  #8A7240;
+
+    /* -- semantic --------------------------------------------------------- */
+    --ground:        var(--mm-black-900);
+    --ground-raised: var(--mm-black-800);
+    --ink:           var(--mm-cream-100);
+    --ink-muted:     var(--mm-cream-300);
+    --ink-faint:     var(--mm-cream-500);
+    --gold-ink:      var(--mm-gold-500);
+    --gold-bright:   var(--mm-gold-300);
+
+    --hairline:      color-mix(in srgb, var(--mm-cream-100) 12%, transparent);
+    --hairline-gold: color-mix(in srgb, var(--mm-gold-500) 34%, transparent);
+
+    /* -- measure ---------------------------------------------------------- */
+    --gutter: clamp(1.25rem, 4vw, 4.5rem);
+    --shell:  84rem;                       /* 1344px — the film's widest line */
+    --text:   38rem;                       /* the prose measure, ~68 characters */
+    --grid-gap: clamp(0.75rem, 1.9vw, 2.25rem);
+
+    /* -- vertical rhythm --------------------------------------------------
+       Every gap between scenes comes from here and components carry no outer
+       margin of their own, which is the same rule main.css §6 holds. */
+    --scene:      clamp(5rem, 11vw, 11.5rem);
+    --scene-tight: clamp(3rem, 6vw, 6rem);
+
+    /* -- motion ------------------------------------------------------------
+       Slow, and the same slowness everywhere. The page is expensive because
+       it is unhurried; two different easings would read as two designers. */
+    --ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+    --slow: 1.15s;
+    --calm: 0.6s;
+}
+
+
+/* ===========================================================================
+   2. Ground
+   ---------------------------------------------------------------------------
+   The page declares mood 'night', so main.css has already set the six
+   variables to the wine temperature. These four are the same four names at
+   the same specificity in a later file, which is the whole override: nothing
+   else in main.css has to know this page exists.
+   =========================================================================== */
+
+[data-mood="night"] {
+    --bg:     var(--ground);
+    --fg:     var(--ink);
+    --rule:   var(--hairline);
+    --accent: var(--gold-ink);
+}
+
+body[data-mood] {
+    background-color: var(--ground);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* The film runs edge to edge and main.css's page shell would put a measure
+   around it. Nothing on this page is inside a container it did not ask for. */
+#main {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    overflow-x: clip;
+}
+
+::selection {
+    background: var(--hairline-gold);
+    color: var(--ink);
+}
+
+:focus-visible {
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 3px;
+}
+
+
+/* ===========================================================================
+   3. Grain
+   ---------------------------------------------------------------------------
+   ONE TEXTURE, OVER EVERYTHING, AND IT IS THE REASON THE BLACK IS NOT FLAT.
+   A near-black page rendered in flat sRGB bands visibly on a large panel; a
+   few percent of noise breaks the band and reads as film rather than as a
+   gradient artefact.
+
+   It is an inline SVG turbulence and not an image: a tiled PNG of noise is
+   40-odd KB and this is under 400 bytes, it scales to any density, and it
+   costs no request. pointer-events: none because it covers the document.
+   =========================================================================== */
+
+body[data-mood]::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+
+/* ===========================================================================
+   4. Type
+   ---------------------------------------------------------------------------
+   Two faces and four jobs.
+
+   Playfair Display carries display type only, and always at 400: a serif this
+   high-contrast goes muddy the moment it is bolded, and the size is doing the
+   emphasis anyway.
+
+   Inter carries everything else. The eyebrows are the one place it is tracked
+   out far, and 0.26em is the point where a six-letter word still reads as a
+   word rather than as six letters.
+   =========================================================================== */
+
+.c-film-hero__title,
+.c-film-band__title,
+.c-film-chapter__title,
+.c-film-chapter__lede,
+.c-film-world__title,
+.c-film-invite__title {
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-weight: 400;
+    font-synthesis-weight: none;
+    letter-spacing: -0.012em;
+    line-height: 1.06;
+    text-wrap: balance;
+}
+
+.c-film-hero__eyebrow,
+.c-film-band__eyebrow,
+.c-film-band__foot-eyebrow,
+.c-film-chapter__eyebrow,
+.c-film-world__eyebrow,
+.c-film-invite__eyebrow {
+    font-size: clamp(0.625rem, 0.72vw, 0.7rem);
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    margin: 0;
+}
+
+/* The scene number. It sits with the eyebrow and is never read aloud as part
+   of it, which is why it is its own element and not a prefix in the string. */
+.c-film-band__index,
+.c-film-band__foot-index,
+.c-film-chapter__index,
+.c-film-world__index {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin-bottom: 1.1rem;
+}
+
+
+/* ===========================================================================
+   5. Navigation
+   ---------------------------------------------------------------------------
+   QUIET IS THE DESIGN. Over the hero there is no bar: cream type standing on
+   the photograph, one line of it, and a scrim above it thin enough that it
+   reads as the sky darkening rather than as a box.
+
+   .is-compact is what home.js adds past the hero — shorter, on the page's own
+   ground, one hairline under it. The transition between the two is the only
+   place on this page where anything moves in under half a second, because a
+   navigation that eases into place at the film's speed feels broken.
+   =========================================================================== */
+
+.c-film-nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    padding: clamp(1.15rem, 2.4vw, 2.1rem) var(--gutter);
+    transition: padding var(--calm) var(--ease),
+                background-color var(--calm) var(--ease),
+                border-color var(--calm) var(--ease);
+    border-bottom: 1px solid transparent;
+}
+
+/* The scrim exists only over the hero and only so the links clear the sky. */
+.c-film-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+        color-mix(in srgb, var(--mm-black-900) 62%, transparent) 0%,
+        transparent 100%);
+    transition: opacity var(--calm) var(--ease);
+}
+
+.c-film-nav.is-compact {
+    padding-block: clamp(0.7rem, 1.2vw, 1rem);
+    background-color: color-mix(in srgb, var(--ground) 88%, transparent);
+    border-bottom-color: var(--hairline);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.c-film-nav.is-compact::before {
+    opacity: 0;
+}
+
+.c-film-nav__inner {
+    max-width: var(--shell);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 3rem);
+}
+
+.c-film-nav__mark {
+    flex: none;
+    margin-right: auto;
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-size: clamp(0.95rem, 1.15vw, 1.1rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.c-film-nav__mark:hover .c-film-nav__mark-name {
+    color: var(--gold-bright);
+}
+
+.c-film-nav__mark-name {
+    transition: color var(--calm) var(--ease);
+}
+
+.c-film-nav__links ul {
+    display: flex;
+    gap: clamp(1rem, 2.1vw, 2.1rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.c-film-nav__links a {
+    position: relative;
+    display: block;
+    padding-block: 0.35rem;
+    /* A two-word label that wraps turns the bar into two rows of half-labels.
+       At 1024px, with the tracking these carry, THE MANOR and PRIVATE CLUB both
+       broke; below they simply do not. */
+    white-space: nowrap;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--calm) var(--ease);
+}
+
+.c-film-nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0.1rem;
+    width: 100%;
+    height: 1px;
+    background: var(--gold-ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--calm) var(--ease);
+}
+
+.c-film-nav__links a:hover,
+.c-film-nav__links a:focus-visible {
+    color: var(--ink);
+}
+
+.c-film-nav__links a:hover::after,
+.c-film-nav__links a:focus-visible::after {
+    transform: scaleX(1);
+}
+
+.c-film-nav__action {
+    flex: none;
+    padding: 0.62rem 1.15rem;
+    border: 1px solid var(--hairline-gold);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--calm) var(--ease),
+                border-color var(--calm) var(--ease),
+                color var(--calm) var(--ease);
+}
+
+.c-film-nav__action:hover,
+.c-film-nav__action:focus-visible {
+    background-color: var(--gold-ink);
+    border-color: var(--gold-ink);
+    color: var(--mm-black-900);
+}
+
+/* -- the button, and the sheet it opens ---------------------------------- */
+
+.c-film-nav__toggle {
+    display: none;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.6rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+}
+
+.c-film-nav__bars {
+    display: block;
+    width: 1.4rem;
+    margin-inline: auto;
+}
+
+.c-film-nav__bars i {
+    display: block;
+    height: 1px;
+    background: var(--ink);
+    transition: transform var(--calm) var(--ease), opacity var(--calm) var(--ease);
+}
+
+.c-film-nav__bars i + i {
+    margin-top: 0.32rem;
+}
+
+[aria-expanded="true"] .c-film-nav__bars i:first-child {
+    transform: translateY(0.165rem) rotate(45deg);
+}
+
+[aria-expanded="true"] .c-film-nav__bars i:last-child {
+    transform: translateY(-0.165rem) rotate(-45deg);
+}
+
+.c-film-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: grid;
+    place-items: center;
+    padding: 6rem var(--gutter) 3rem;
+    background: var(--ground);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.c-film-menu[hidden] {
+    display: none;
+}
+
+.c-film-menu__inner {
+    width: 100%;
+    max-width: 32rem;
+}
+
+.c-film-menu__list {
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    border-top: 1px solid var(--hairline);
+}
+
+.c-film-menu__list li {
+    border-bottom: 1px solid var(--hairline);
+}
+
+.c-film-menu__list a {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    padding: 1.05rem 0;
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-size: 1.55rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.c-film-menu__n {
+    font-family: var(--font-body, Inter, system-ui, sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-ink);
+}
+
+.c-film-menu__action {
+    display: block;
+    padding: 1rem;
+    border: 1px solid var(--hairline-gold);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--gold-bright);
+    text-decoration: none;
+}
+
+.c-film-menu__place {
+    margin: 2.25rem 0 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    text-align: center;
+}
+
+/* The drawer is the only thing on this page that may lock the scroll. */
+html.is-menu-open,
+html.is-menu-open body {
+    overflow: hidden;
+}
+
+
+/* ===========================================================================
+   6. Hero
+   ---------------------------------------------------------------------------
+   ONE SCREEN, ONE PICTURE, AND THE TYPE STANDS ON IT.
+
+   100svh rather than 100vh: on iOS the large viewport unit puts the scroll cue
+   under the address bar on first paint, which is the one element of this
+   screen that has to be visible for the page to explain itself.
+
+   THE STILL AND THE FILM ARE THE SAME FRAME AT THE SAME CROP, stacked, and the
+   film fades over the still when it can play. Nothing re-frames, so the moment
+   the video arrives is invisible — which is the point of taking the poster out
+   of the video rather than out of the photograph it was made from.
+
+   THE SCRIM IS TWO GRADIENTS AND NOT A FLAT WASH. A flat 40% black over a
+   night photograph kills the windows, which are the only light in it. Top and
+   bottom gradients darken where the type is and leave the middle alone.
+   =========================================================================== */
+
+.c-film-hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: 100svh;
+    /* The bottom padding clears the scroll cue rather than sitting behind it:
+       at a 900px-tall window the statement and the cue were six pixels apart,
+       which reads as a collision rather than as a composition. */
+    padding: 0 var(--gutter) clamp(7rem, 15vh, 10.5rem);
+    isolation: isolate;
+    overflow: clip;
+}
+
+/*
+   THE FILM IS AT z-index 0 AND NOT AT -1, and that one digit is worth a second
+   of measured LCP.
+
+   A negative z-index puts the picture behind the stacking context's own
+   backdrop, and Chrome does not offer content painted there as a
+   largest-contentful-paint candidate. The hero photograph — a 1440x900 image,
+   decoded and painted at about 200 ms — was therefore not the LCP element; the
+   seal was, at 1768 ms, because the seal waits on the entrance animation. The
+   page looked identical either way and measured a second and a half worse.
+
+   At 0 the copy still stands on the picture: both are positioned, they paint
+   in document order, and the two below say so explicitly rather than relying
+   on it.
+*/
+.c-film-hero__film {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: clip;
+}
+
+.c-film-hero__still,
+.c-film-hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+}
+
+/* img() prints its own aspect-ratio onto the wrapper; a full-bleed hero has to
+   ignore it and fill the window instead. */
+.c-film-hero__still {
+    aspect-ratio: auto !important;
+}
+
+.c-film-hero__still img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+}
+
+.c-film-hero__video {
+    opacity: 0;
+    transition: opacity 1.4s var(--ease);
+}
+
+.c-film-hero__video.is-playing {
+    opacity: 1;
+}
+
+.c-film-hero__scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(to bottom,
+            color-mix(in srgb, var(--mm-black-900) 58%, transparent) 0%,
+            transparent 26%,
+            transparent 44%,
+            color-mix(in srgb, var(--mm-black-900) 78%, transparent) 88%,
+            var(--mm-black-900) 100%),
+        radial-gradient(120% 80% at 50% 40%,
+            transparent 40%,
+            color-mix(in srgb, var(--mm-black-900) 45%, transparent) 100%);
+}
+
+.c-film-hero__copy {
+    position: relative;
+    z-index: 1;
+    max-width: var(--shell);
+    width: 100%;
+    margin-inline: auto;
+    text-align: center;
+}
+
+.c-film-hero__seal {
+    display: block;
+    width: clamp(4.75rem, 7vw, 7.375rem);
+    height: auto;
+    margin: 0 auto clamp(1.35rem, 2.4vw, 2.1rem);
+    opacity: 0.94;
+}
+
+/*
+   THE EYEBROW STANDS ON THE LIT WINDOWS and the muted grey did not survive
+   there — it is the one line of this screen that sits over the brightest part
+   of the photograph. Gold at full strength plus a soft shadow keeps it legible
+   without another point of scrim over the picture, which would have cost the
+   windows the glow that makes the shot.
+*/
+.c-film-hero__eyebrow {
+    color: var(--gold-bright);
+    text-shadow: 0 1px 12px color-mix(in srgb, var(--mm-black-900) 88%, transparent);
+}
+
+.c-film-hero__title,
+.c-film-hero__subtitle,
+.c-film-hero__statement {
+    text-shadow: 0 2px 28px color-mix(in srgb, var(--mm-black-900) 55%, transparent);
+}
+
+.c-film-hero__title {
+    margin: clamp(1.1rem, 2vw, 1.75rem) 0 0;
+    font-size: clamp(2.6rem, 9.2vw, 8.25rem);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    line-height: 0.94;
+    color: var(--ink);
+}
+
+.c-film-hero__subtitle {
+    margin: clamp(1rem, 1.8vw, 1.6rem) 0 0;
+    font-size: clamp(0.72rem, 0.95vw, 0.84rem);
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+}
+
+.c-film-hero__statement {
+    max-width: 30rem;
+    margin: clamp(1.6rem, 3vw, 2.4rem) auto 0;
+    font-size: clamp(0.9rem, 1.05vw, 1rem);
+    line-height: 1.75;
+    color: var(--ink-muted);
+    text-wrap: balance;
+}
+
+.c-film-hero__cue {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: clamp(1.35rem, 3vh, 2.5rem);
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+    font-size: 0.5625rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-decoration: none;
+    transition: color var(--calm) var(--ease);
+}
+
+.c-film-hero__cue:hover {
+    color: var(--gold-bright);
+}
+
+.c-film-hero__cue-line {
+    display: block;
+    width: 1px;
+    height: clamp(1.75rem, 4vh, 3rem);
+    background: linear-gradient(to bottom, var(--hairline-gold), transparent);
+}
+
+
+/* ===========================================================================
+   7. Band — the five sequences
+   ---------------------------------------------------------------------------
+   full   edge to edge; the scene is named on the picture
+   wide   edge to edge inside the shell, for the 21:9 courts
+   inset  held inside the measure, captioned underneath
+
+   THE FRAME HOLDS THE SHAPE AND THE FILM FILLS IT, exactly as img()'s wrapper
+   does for a still — which is what stops a 21:9 encode dropped into a 16:9
+   slot from moving the page instead of being cropped.
+   =========================================================================== */
+
+.c-film-band {
+    margin-block: var(--scene);
+}
+
+.c-film-band--full {
+    margin-block: calc(var(--scene) * 0.9);
+}
+
+.c-film-band--wide,
+.c-film-band--inset {
+    max-width: var(--shell);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+.c-film-band__frame {
+    position: relative;
+    aspect-ratio: var(--band-ratio, 16 / 9);
+    overflow: clip;
+    background: var(--mm-black-700);
+    isolation: isolate;
+}
+
+.c-film-band--full .c-film-band__frame {
+    /* Full-bleed sequences hold a floor so a 16:9 encode does not become a
+       letterbox strip on a wide desktop. */
+    min-height: min(78svh, 44rem);
+}
+
+.c-film-band__still,
+.c-film-band__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.c-film-band__still {
+    aspect-ratio: auto !important;
+}
+
+.c-film-band__still img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.c-film-band__video {
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+}
+
+.c-film-band__video.is-playing {
+    opacity: 1;
+}
+
+.c-film-band__scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 0%,
+        transparent 34%,
+        transparent 52%,
+        color-mix(in srgb, var(--mm-black-900) 72%, transparent) 100%);
+}
+
+.c-film-band--inset .c-film-band__scrim,
+.c-film-band--wide .c-film-band__scrim {
+    background: linear-gradient(to bottom,
+        transparent 55%,
+        color-mix(in srgb, var(--mm-black-900) 34%, transparent) 100%);
+}
+
+.c-film-band__overlay {
+    position: absolute;
+    inset: auto 0 0;
+    padding: var(--gutter);
+    max-width: var(--shell);
+    margin-inline: auto;
+}
+
+.c-film-band__title {
+    margin: 0.7rem 0 0;
+    font-size: clamp(2.4rem, 6.4vw, 5.75rem);
+    letter-spacing: 0.02em;
+    color: var(--ink);
+}
+
+.c-film-band__foot {
+    display: grid;
+    gap: 0.45rem;
+    max-width: var(--shell);
+    margin: clamp(1.1rem, 2vw, 1.75rem) auto 0;
+    padding-inline: var(--gutter);
+}
+
+.c-film-band--full .c-film-band__foot {
+    padding-inline: var(--gutter);
+}
+
+.c-film-band__foot-title {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    color: var(--ink);
+}
+
+.c-film-band__caption,
+.c-film-plates__caption {
+    margin: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+
+/* ===========================================================================
+   8. Chapter
+   ---------------------------------------------------------------------------
+   open   the scene opens on it: number, eyebrow, a display line, then prose
+   split  the band above has already named the scene, so a lede sits left and
+          the prose sits right — a two-column measure that never exceeds ~68
+          characters on either side
+   =========================================================================== */
+
+.c-film-chapter {
+    max-width: var(--shell);
+    margin: var(--scene) auto;
+    padding-inline: var(--gutter);
+}
+
+.c-film-chapter__title {
+    margin: 0.9rem 0 0;
+    font-size: clamp(2rem, 4.6vw, 4rem);
+    max-width: 18ch;
+}
+
+/*
+   THE OPENING CHAPTER IS TWO COLUMNS AND THE SPLIT IS UNEVEN. The display line
+   takes the narrower half because it is set at four times the size of the
+   prose beside it; giving both halves the same width would have made the
+   heading run to one word a line.
+*/
+.c-film-chapter--open .c-film-chapter__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(2rem, 5vw, 6rem);
+    align-items: start;
+}
+
+.c-film-chapter--open .c-film-chapter__body {
+    max-width: var(--text);
+    padding-top: 0.5rem;
+}
+
+.c-film-chapter--split .c-film-chapter__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5.5rem);
+    align-items: start;
+}
+
+.c-film-chapter__lede {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.9vw, 2.4rem);
+    color: var(--ink);
+    max-width: 16ch;
+    text-wrap: pretty;
+}
+
+.c-film-chapter__body {
+    display: grid;
+    gap: 1.35rem;
+    max-width: var(--text);
+}
+
+.c-film-chapter__body p {
+    margin: 0;
+    font-size: clamp(0.9375rem, 1.05vw, 1.0625rem);
+    line-height: 1.78;
+    color: var(--ink-muted);
+}
+
+/* The first line of the opening chapter is the one the reader lands on after
+   the hero; it gets the cream rather than the muted grey. */
+.c-film-chapter--open .c-film-chapter__body p:first-child {
+    color: var(--ink);
+}
+
+
+/* ===========================================================================
+   9. Plates
+   ---------------------------------------------------------------------------
+   TWELVE COLUMNS, AND THE ASYMMETRY IS THE DESIGN. A plate declares --span and
+   --offset in the content file and this grid is the only thing that reads
+   them. There is no auto-placement anywhere: a plate that does not say where
+   it goes goes at the left edge, six columns wide, which is a legible default
+   rather than whatever the last row left over.
+
+   .is-raised drops a plate against its neighbour. It is a single translate and
+   it is dropped entirely below 900px — see §14.
+   =========================================================================== */
+
+.c-film-plates {
+    max-width: var(--shell);
+    margin: var(--scene) auto;
+    padding-inline: var(--gutter);
+}
+
+.c-film-plates--overture {
+    margin-top: var(--scene-tight);
+}
+
+.c-film-plates__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(2.5rem, 5vw, 5rem) var(--grid-gap);
+}
+
+.c-film-plates__item {
+    grid-column: calc(var(--offset, 0) + 1) / span var(--span, 6);
+    margin: 0;
+    min-width: 0;
+}
+
+/*
+   A HANGING PLATE, AND A GUARD SO IT CAN NEVER LAND ON THE ROW BELOW.
+
+   The offset is a transform, because a transform moves the picture without
+   moving the layout — which is the whole point of hanging one plate against
+   another. But a transform also cannot be seen by the grid, so a raised plate
+   that happened to be the TALLEST in its row would hang straight through the
+   gap and into the next row's captions.
+
+   The matching margin-bottom is what makes that impossible. It grows the item's
+   own box by exactly the distance the picture moves, so the row reserves the
+   space. When the raised plate is the shorter of the two — which it is
+   everywhere on this page today — the taller one still sets the row height and
+   the margin changes nothing at all. It only does anything in the one case
+   where doing nothing would be a collision.
+*/
+.c-film-plates__item.is-raised {
+    --raise: clamp(2rem, 6vw, 6.5rem);
+
+    transform: translateY(var(--raise));
+    margin-bottom: var(--raise);
+}
+
+.c-film-plates__img {
+    overflow: clip;
+    background: var(--mm-black-700);
+}
+
+.c-film-plates__img img,
+.c-film-world__img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The still scale that the reveal animates back to 1. Held here rather
+       than in JS so the first paint is already the right size. */
+    transform: scale(1.06);
+    transition: transform 1.6s var(--ease);
+}
+
+.c-film-plates__item:hover .c-film-plates__img img {
+    transform: scale(1.015);
+}
+
+.c-film-plates__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: baseline;
+    margin-top: 0.95rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--hairline);
+}
+
+/* The visualisation label, and it is never optional — see film-plates.php. */
+.c-film-plates__mark {
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+    color: var(--gold-ink);
+    opacity: 0.8;
+}
+
+.c-film-plates--house .c-film-plates__caption {
+    border-top-color: var(--hairline-gold);
+    color: var(--ink-muted);
+}
+
+
+/* ===========================================================================
+   10. World — the index of eight
+   ---------------------------------------------------------------------------
+   FOUR ACROSS ON A DESKTOP, TWO ON A TABLET, TWO ON A PHONE. Two rather than
+   one at the bottom end on purpose: eight full-width plates stacked is eight
+   screens of scrolling to read an index, and an index is the one part of a
+   page a reader wants to take in at a glance.
+
+   THE DESCRIPTION IS NOT BEHIND A HOVER. It is printed under every label at
+   every width. Hover lifts the plate and warms the rule and does nothing else,
+   because a touch screen has no hover and the note is the useful half.
+   =========================================================================== */
+
+.c-film-world {
+    max-width: var(--shell);
+    margin: var(--scene) auto;
+    padding-inline: var(--gutter);
+}
+
+.c-film-world__head {
+    max-width: 40rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.c-film-world__title {
+    margin: 0.9rem 0 0;
+    font-size: clamp(1.9rem, 4.2vw, 3.5rem);
+}
+
+.c-film-world__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1.5rem, 2.6vw, 2.75rem) var(--grid-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.c-film-world__link {
+    display: grid;
+    gap: 0.85rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.c-film-world__plate {
+    display: block;
+    overflow: clip;
+    background: var(--mm-black-700);
+    transition: transform var(--slow) var(--ease);
+}
+
+.c-film-world__img {
+    display: block;
+}
+
+.c-film-world__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--hairline);
+    transition: border-color var(--calm) var(--ease);
+}
+
+.c-film-world__n {
+    font-size: 0.5625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--gold-ink);
+}
+
+.c-film-world__label {
+    font-family: var(--font-display, "Playfair Display", Georgia, serif);
+    font-size: clamp(1.0625rem, 1.35vw, 1.3rem);
+    letter-spacing: 0.005em;
+    color: var(--ink);
+}
+
+.c-film-world__note {
+    display: block;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--ink-faint);
+    max-width: 26ch;
+}
+
+.c-film-world__link:hover .c-film-world__plate,
+.c-film-world__link:focus-visible .c-film-world__plate {
+    transform: translateY(-6px);
+}
+
+.c-film-world__link:hover .c-film-world__img img,
+.c-film-world__link:focus-visible .c-film-world__img img {
+    transform: scale(1.015);
+}
+
+.c-film-world__link:hover .c-film-world__meta,
+.c-film-world__link:focus-visible .c-film-world__meta {
+    border-top-color: var(--hairline-gold);
+}
+
+
+/* ===========================================================================
+   11. Invitation
+   ---------------------------------------------------------------------------
+   The one warm ground on the page, and it is used once. A near-black film that
+   ends on near-black ends on nothing; a mahogany that only ever appears here
+   makes the last screen read as a room rather than as a footer.
+   =========================================================================== */
+
+.c-film-invite {
+    margin-top: var(--scene);
+    padding: clamp(5rem, 12vw, 10rem) var(--gutter);
+    background:
+        radial-gradient(90% 120% at 50% 100%,
+            color-mix(in srgb, var(--mm-mahogany) 85%, transparent) 0%,
+            transparent 72%),
+        var(--ground-raised);
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+}
+
+.c-film-invite__inner {
+    max-width: 44rem;
+    margin-inline: auto;
+}
+
+.c-film-invite__seal {
+    display: block;
+    width: clamp(4.5rem, 6.5vw, 8.25rem);
+    height: auto;
+    margin: 0 auto clamp(1.75rem, 3vw, 2.75rem);
+    opacity: 0.85;
+}
+
+.c-film-invite__title {
+    margin: 1rem 0 0;
+    font-size: clamp(2.1rem, 5.4vw, 4.5rem);
+}
+
+.c-film-invite__body {
+    max-width: 32rem;
+    margin: clamp(1.5rem, 2.6vw, 2.25rem) auto 0;
+    font-size: clamp(0.9375rem, 1.05vw, 1.0625rem);
+    line-height: 1.78;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+}
+
+.c-film-invite__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-top: clamp(2.25rem, 4vw, 3.25rem);
+}
+
+.c-film-invite__action {
+    padding: 1.05rem 2.1rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background-color var(--calm) var(--ease),
+                border-color var(--calm) var(--ease),
+                color var(--calm) var(--ease);
+}
+
+.c-film-invite__action--primary {
+    background: var(--gold-ink);
+    color: var(--mm-black-900);
+}
+
+.c-film-invite__action--primary:hover,
+.c-film-invite__action--primary:focus-visible {
+    background: var(--gold-bright);
+}
+
+.c-film-invite__action--quiet {
+    border-color: var(--hairline-gold);
+    color: var(--gold-bright);
+}
+
+.c-film-invite__action--quiet:hover,
+.c-film-invite__action--quiet:focus-visible {
+    border-color: var(--gold-ink);
+    background: color-mix(in srgb, var(--mm-gold-500) 12%, transparent);
+}
+
+
+/* ===========================================================================
+   12. Footer
+   =========================================================================== */
+
+.c-film-foot {
+    padding: clamp(3rem, 6vw, 5rem) var(--gutter) clamp(2.5rem, 4vw, 3.5rem);
+    background: var(--ground);
+    border-top: 1px solid var(--hairline);
+}
+
+.c-film-foot__inner {
+    max-width: var(--shell);
+    margin-inline: auto;
+    display: grid;
+    gap: 1.1rem;
+    justify-items: center;
+    text-align: center;
+}
+
+/*
+   THE MARK IS A PICTURE NOW and it is sized in CSS pixels rather than in vw:
+   it is a lockup with a wordmark inside it, so it has one right size and a
+   fluid one would only ever be right at one viewport. 240 is that size; the
+   ladder above it is for the pixel ratio, not for the layout.
+*/
+.c-film-foot__lockup {
+    display: block;
+    width: 240px;
+    max-width: 72vw;
+    height: auto;
+}
+
+.c-film-foot__tagline {
+    margin: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+
+.c-film-foot__place {
+    margin: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+}
+
+.c-film-foot__links ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.6rem;
+    list-style: none;
+    margin: 0.6rem 0 0;
+    padding: 0;
+}
+
+.c-film-foot__links a {
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--calm) var(--ease);
+}
+
+.c-film-foot__links a:hover,
+.c-film-foot__links a:focus-visible {
+    color: var(--gold-bright);
+}
+
+.c-film-foot__contact {
+    margin: 0.2rem 0 0;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+}
+
+.c-film-foot__contact a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-gold);
+    padding-bottom: 0.15em;
+    transition: color var(--calm) var(--ease),
+                border-color var(--calm) var(--ease);
+}
+
+.c-film-foot__contact a:hover,
+.c-film-foot__contact a:focus-visible {
+    color: var(--gold-bright);
+    border-bottom-color: var(--gold-bright);
+}
+
+.c-film-foot__members {
+    margin: 0.5rem 0 0;
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.c-film-foot__note {
+    max-width: 34rem;
+    margin: 1.1rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.65;
+    color: var(--ink-faint);
+}
+
+
+/* ===========================================================================
+   13. Motion
+   ---------------------------------------------------------------------------
+   THE ONE RULE THAT MATTERS: NOTHING IS EVER HIDDEN BY CSS ALONE.
+
+   The obvious way to build a scroll-reveal is to set opacity: 0 in the
+   stylesheet and let a script put it back. It is also the way to ship a blank
+   page to anybody whose script does not arrive — a failed CDN, a corporate
+   proxy, a phone that gave up on the fourth request — and the failure is total
+   and silent. So every element on this page is visible in the stylesheet, and
+   home.js hides an element only at the moment it takes responsibility for
+   showing it again, and only if that element is below the fold. An element
+   already on screen when the motion layer boots is never touched, which is
+   also why there is no flash: the first paint is the final state for
+   everything the reader can see.
+
+   prefers-reduced-motion switches the whole layer off at the source. head.php
+   loads no libraries at all, html.motion is never set, and every rule below is
+   inert — not a smaller animation, none, and 50-odd KB not downloaded.
+
+   WHAT MOVES: opacity, one axis of translate, and a photograph settling from
+   1.06 to 1. Nothing rotates, nothing bounces, nothing overshoots. The page is
+   expensive because it is unhurried.
+   =========================================================================== */
+
+/*
+   The first screen is the one entrance that does not wait for a library. It is
+   a keyframe, it runs on the stylesheet alone, and it is the reason the hero
+   reads as composed rather than as loaded — the motion layer is still being
+   fetched while this is playing.
+*/
+@keyframes mm-rise {
+    from { opacity: 0; transform: translateY(1.1rem); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes mm-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/*
+   ONE SECOND, NOT ONE AND A HALF, AND THE DIFFERENCE IS MEASURED RATHER THAN
+   FELT. Every element of this screen is an LCP candidate, and a candidate that
+   is still fading in has not been painted: at 1.5s the measured LCP was 1.67s,
+   at 1.0s it is a little over a second. The photograph behind them is on screen
+   at about 100ms either way — this is the metric catching up with what the
+   reader already sees, not the reader waiting longer.
+*/
+html.motion .c-film-hero__seal,
+html.motion .c-film-hero__eyebrow,
+html.motion .c-film-hero__title,
+html.motion .c-film-hero__subtitle,
+html.motion .c-film-hero__statement,
+html.motion .c-film-hero__cue {
+    animation: mm-rise 1s var(--ease) backwards;
+}
+
+html.motion .c-film-hero__seal      { animation-delay: 0.06s; }
+html.motion .c-film-hero__eyebrow   { animation-delay: 0.18s; }
+html.motion .c-film-hero__title     { animation-delay: 0.28s; }
+html.motion .c-film-hero__subtitle  { animation-delay: 0.44s; }
+html.motion .c-film-hero__statement { animation-delay: 0.58s; }
+
+html.motion .c-film-hero__cue {
+    animation-name: mm-fade;
+    animation-delay: 1.1s;
+}
+
+/*
+   Everything below the first screen is home.js's, and the class it adds when
+   it is ready is what allows it to hide anything at all. Without the class
+   these selectors match nothing and the page is simply a page.
+*/
+html.is-revealing [data-reveal],
+html.is-revealing [data-reveal-lines],
+html.is-revealing [data-plate] {
+    will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html [data-reveal],
+    html [data-reveal-lines],
+    html [data-plate] {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
+    .c-film-plates__img img,
+    .c-film-world__img img {
+        transform: none;
+        transition: none;
+    }
+
+    .c-film-plates__item.is-raised {
+        transform: none;
+        margin-bottom: 0;
+    }
+
+    .c-film-hero__video,
+    .c-film-band__video {
+        display: none;
+    }
+
+    * {
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* ===========================================================================
+   14. Narrow — the real mobile pass
+   ---------------------------------------------------------------------------
+   THIS IS NOT THE DESKTOP LAYOUT SHRUNK, and the differences are decisions:
+
+   - the twelve-column grid collapses and every offset and raise is dropped,
+     because a one-column offset at 390px is four pixels
+   - the split chapter becomes one column, lede first
+   - the hero title stops at 9.2vw and the crop shifts up: on a 16:9 film in a
+     portrait window the house sits high, and centring it puts the roof off
+     the top of the screen
+   - the world index stays two across
+   - the navigation's links leave the bar for the sheet
+   - full-bleed bands lose their minimum height, which on a phone would have
+     made a 16:9 sequence taller than the screen
+   =========================================================================== */
+
+/*
+   BETWEEN 900 AND 1180 THE BAR IS TIGHT and the seven labels are the widest
+   thing in it. The tracking and the gaps come in rather than the type getting
+   smaller: a 10px navigation is not more legible than a 11px one set closer.
+
+   Seven, not six: the bar carries the site's pages now rather than this page's
+   scenes (see partials/film-nav.php), and MEMBERSHIP still sits outside them as
+   the accent action. RESIDENCES and AFTER DARK are the two longest labels and
+   they are what this query is measured against.
+*/
+@media (max-width: 1179px) and (min-width: 900px) {
+    .c-film-nav__inner {
+        gap: 1.25rem;
+    }
+
+    .c-film-nav__links ul {
+        gap: 1.15rem;
+    }
+
+    .c-film-nav__links a {
+        letter-spacing: 0.12em;
+    }
+
+    .c-film-nav__action {
+        padding-inline: 0.9rem;
+        letter-spacing: 0.14em;
+    }
+
+    .c-film-nav__mark {
+        letter-spacing: 0.15em;
+    }
+}
+
+/*
+   AND BELOW 1024 IT IS TIGHTER STILL — the last hundred and twenty pixels
+   before the links leave the bar altogether. One more step of the same move:
+   gaps and tracking, and only here does the type itself come down, by half a
+   pixel, because at this width the alternative is a second row of labels.
+*/
+@media (max-width: 1023px) and (min-width: 900px) {
+    .c-film-nav__inner {
+        gap: 1rem;
+    }
+
+    .c-film-nav__links ul {
+        gap: 0.75rem;
+    }
+
+    .c-film-nav__links a {
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+    }
+
+    .c-film-nav__action {
+        padding-inline: 0.7rem;
+        letter-spacing: 0.1em;
+    }
+
+    .c-film-nav__mark {
+        font-size: 0.9rem;
+        letter-spacing: 0.13em;
+    }
+}
+
+@media (max-width: 1079px) {
+    .c-film-world__list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 899px) {
+    .c-film-nav__links,
+    .c-film-nav__action {
+        display: none;
+    }
+
+    html.has-js .c-film-nav__toggle {
+        display: block;
+    }
+
+    .c-film-chapter--split .c-film-chapter__inner,
+    .c-film-chapter--open .c-film-chapter__inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.75rem;
+    }
+
+    .c-film-chapter__lede {
+        max-width: 20ch;
+    }
+
+    .c-film-chapter--open .c-film-chapter__body {
+        padding-top: 0;
+    }
+
+    .c-film-plates__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: clamp(2.25rem, 8vw, 3.5rem);
+    }
+
+    .c-film-plates__item {
+        grid-column: 1 / -1;
+    }
+
+    .c-film-plates__item.is-raised {
+        transform: none;
+        margin-bottom: 0;
+    }
+
+    .c-film-world__list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .c-film-world__note {
+        max-width: none;
+    }
+
+    .c-film-band--full .c-film-band__frame {
+        min-height: 0;
+    }
+
+    .c-film-band--full {
+        margin-block: var(--scene-tight);
+    }
+
+    /* A 16:9 sequence in a portrait window shows a strip of the middle. These
+       two bands are architecture with sky above it, so the crop is taken from
+       the upper half rather than the centre. */
+    .c-film-band__still img,
+    .c-film-band__video {
+        object-position: center 40%;
+    }
+}
+
+@media (max-width: 619px) {
+    .c-film-hero {
+        align-items: center;
+        padding-bottom: clamp(6rem, 16vh, 9rem);
+    }
+
+    .c-film-hero__still,
+    .c-film-hero__still img,
+    .c-film-hero__video {
+        object-position: center 38%;
+    }
+
+    .c-film-hero__title {
+        letter-spacing: 0.06em;
+    }
+
+    .c-film-hero__statement {
+        font-size: 0.875rem;
+    }
+
+    .c-film-band__overlay {
+        padding: 1.35rem var(--gutter) 1.6rem;
+    }
+
+    .c-film-invite__actions {
+        flex-direction: column;
+    }
+
+    .c-film-invite__action {
+        width: 100%;
+    }
+}
+
+/*
+   THE INDEX STAYS TWO ACROSS ON A PHONE, and that is the one place this design
+   does not simply go bigger as the screen goes smaller.
+
+   Eight full-width plates is five screens of scrolling to read a contents page,
+   and a contents page that cannot be taken in is not one. Two across puts a 4:5
+   plate at about 160px, which is small — so the type under it is sized to be
+   read at that width rather than scaled with it, and the description stays
+   printed rather than being dropped. The plate is the ornament here; the label
+   and the line under it are the content.
+
+   Below 360px there is not enough width left for two of anything.
+*/
+@media (max-width: 619px) {
+    .c-film-world__list {
+        gap: 1.5rem var(--grid-gap);
+    }
+
+    .c-film-world__link {
+        gap: 0.65rem;
+    }
+
+    .c-film-world__meta {
+        gap: 0.5rem;
+        padding-top: 0.55rem;
+    }
+
+    .c-film-world__label {
+        font-size: 1rem;
+    }
+
+    .c-film-world__note {
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 359px) {
+    .c-film-world__list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+    }
+}

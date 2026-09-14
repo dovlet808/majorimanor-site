@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# This is the PRODUCTION robots.txt. The staging host is served
+# deploy/robots.staging.txt instead, which disallows everything.
+#
+# The address below is the one absolute URL on this site that cannot derive
+# from SITE_URL at render time — robots.txt is a static file with no PHP in it.
+# It is regenerated together with sitemap.xml by tools/build_sitemap.php's
+# sibling note: if SITE_URL ever changes, this line must be changed by hand.
+Sitemap: https://majorimanor.com/sitemap.xml

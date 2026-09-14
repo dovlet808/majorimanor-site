@@ -1,0 +1,511 @@
+@charset "UTF-8";
+
+/* ===========================================================================
+   Majori Manor — terms.css
+
+   THE SECOND DOCUMENT, AND THE FILE IS SHORT ON PURPOSE.
+
+   WHAT THIS FILE IS NOT. It is not a second legal design system. /terms loads
+   home.css for the chrome and privacy.css for the document, and privacy.css is
+   the legal layer of this site in exactly the way estate.css is the film's act
+   layer: the cream reading surface, the two-column frame, the green index, the
+   clause, the notice and the foot are all there, they are all correct here, and
+   not one of them is re-stated below. If a rule in this file could have been a
+   rule in that one, it is a bug.
+
+   WHY THE NAMES ARE WRONG AND STAY WRONG. privacy.css and privacy.js are the
+   legal layer and ought to be called legal.css and legal.js. Renaming them is
+   not available: asset_url() cache-busts on filemtime, so touching either file
+   at all — even to move it — would re-version the stylesheet in an approved
+   page's markup. It is the trade estate.css made when THE CLUB took it, and it
+   is recorded here for the same reason.
+
+   WHAT IS ACTUALLY IN HERE, and there are five things:
+
+     1. the hero clamp and this page's own scrim, over a room lit by a fire
+        rather than by a window
+     2. the two chapter breaks, which /privacy's brief forbade and this one
+        asks for
+     3. the chapter mark in the index that has to agree with them
+     4. the impressum's four gaps, set as one schedule rather than four boxes
+     5. the narrow pass over the three above
+
+   THE COLOUR RHYTHM IS THE BRIEF'S, AND IT IS privacy.css's WITH ONE ADDED:
+
+       hero        near-black    the film's own ground, one screen of it
+       index       deep green    a panel standing on the cream
+       document    warm cream    the reading surface
+       chapter     deep green    the seam between the two documents   <- new
+       document    warm cream    the impressum
+       footer      the footer's  --green-900, as on every other page
+
+   Layer order, strictly:
+
+     1. hero        — clamped to 56svh, and the scrim re-cut for this picture
+     2. breaks      — the seal seam and the green chapter field
+     3. index       — the chapter mark inside the contents
+     4. impressum   — four notices joined into one schedule
+     5. narrow      — the mobile pass
+     6. motion      — what is allowed to move, which is the hero and nothing
+   =========================================================================== */
+
+
+/* ===========================================================================
+   1. The hero, clamped, and lit by a fire
+   ---------------------------------------------------------------------------
+   45–65vh, says the brief, and "do not consume half the page before the legal
+   content starts". privacy.css holds its own hero to 62svh; this one is 56 —
+   the middle of the range the brief names, and six points tighter than the
+   sibling page because this document opens on a chapter rather than on a
+   clause and the reader should be able to see that it does.
+
+   THE FLOOR AND THE CEILING ARE THE SAME IDEA privacy.css §2 HAD. The floor
+   stops it collapsing on a landscape phone; the ceiling stops a 4K panel
+   turning 56% into eight hundred pixels of bookcase.
+   =========================================================================== */
+
+.c-film-hero {
+    min-height: max(22rem, min(56svh, 36rem));
+}
+
+/*
+   WHERE THE 16:9 FRAME IS CUT WHEN THE HERO IS WIDER THAN IT IS, and this is
+   the one number on the page that was chosen by looking at four of them.
+
+   A hero 1440 wide and 504 tall is 2.86:1 and the picture is 1.78:1, so a
+   third of its height is cropped away and object-position decides which third.
+   home.css sets 42% for a facade under a sky, where the sky is the part to
+   lose. Here the picture is a room, its subject is the chimneypiece group, and
+   42% cuts the sitter's head off at the collar. Rendered at 0, 22, 42 and 62:
+
+     0%   loses the crest at the top of the gilt frame
+     22%  the whole portrait, both candelabra, the mantel, the head of the
+          firebox, both lamps, and bookcases to both edges — the composed
+          picture, and the darkest band of it is exactly where the h1 lands
+     42%  the portrait cut at the collar
+     62%  the portrait cut at the hands; the fire fills the middle and the
+          brightest thing on the screen is directly behind the title
+
+   BELOW ABOUT 900px THIS NUMBER STOPS MATTERING and nothing has to change for
+   it. A phone hero is taller than it is wide, so cover fits the height and
+   crops the SIDES instead: the full height of the frame survives and what a
+   reader gets is the chimneypiece group, centred. The mobile crop is elegant
+   because the picture is symmetrical, not because it is steered.
+
+   THE STILL AND THE VIDEO BOTH TAKE IT, and they have to: they are the same
+   frame at the same crop, and the fade from one to the other is only invisible
+   while that stays true.
+*/
+.c-film-hero__still,
+.c-film-hero__still img,
+.c-film-hero__video {
+    object-position: center 22%;
+}
+
+/*
+   THE COPY GOES BACK TO THE FOOT OF THE HERO BELOW 620px, AND FINDING OUT WHY
+   IT HAD LEFT IS THE ONE MEASUREMENT ON THIS PAGE THAT FOUND A BUG.
+
+   home.css §6 sets the hero to `align-items: end` and then, under 620px, to
+   `align-items: center` with a bottom padding of 6–9rem. Both halves of that
+   are correct for what they were written for: a film hero is a FULL screen with
+   a scroll cue at the bottom of it, so on a phone the copy is centred in the
+   window and the padding holds the cue clear.
+
+   A CLAMPED LEGAL HERO IS NEITHER OF THOSE THINGS. privacy.css re-cuts the
+   padding to 2.5–4.25rem because there is no cue to clear — and it does that
+   outside a media query, so it wins on source order at every width — but
+   nothing puts the alignment back. The result, measured at 390x844: a 473px
+   hero whose copy sits at 119..303, with 170px of empty photograph under it.
+   It reads as a block of type that has slipped off the bottom of the frame.
+
+   One line. The copy stands at the foot at every width, as it does on a
+   desktop, and it stands over the darkest band of this particular picture —
+   the chimneypiece and the head of the firebox — which is where it should be
+   anyway.
+
+   IT IS NOT FIXED IN privacy.css, WHERE THE SAME TWO RULES MEET THE SAME WAY.
+   /privacy is approved and outside this brief, so nothing there was touched and
+   nothing there was rebuilt. It is recorded here, and in docs/TERMS.md §5, so
+   that the next page to take that stylesheet takes this line with it.
+*/
+@media (max-width: 619px) {
+    .c-film-hero {
+        align-items: end;
+    }
+}
+
+/*
+   THE SCRIM, FOR THE ONLY HERO ON THIS SITE THAT IS LIT FROM INSIDE THE ROOM.
+
+   Every other first screen on Majori Manor is a building at dusk or an interior
+   at daylight: the bright parts are the sky, the windows or the lamps, and they
+   are at the top or at the sides. This one is a library at night with a fire in
+   it, and its three light sources — the fire, the two candelabra and the two
+   table lamps — are all in the lower half of the frame, which is exactly where
+   home.css's stack leaves the picture alone and exactly where the h1 and the
+   line under it land.
+
+   So this is one pseudo-element over home.css's stack — a layer, not a
+   replacement, so home.css stays the only place the hero's own scrim is
+   described — and what it adds is weight in the middle band and a soft pool
+   under the centre where the copy stands. The fire keeps its glow: at 46% the
+   flame is still the brightest thing on the screen, which is the point of
+   choosing this room.
+*/
+.c-film-hero__scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(88% 62% at 50% 84%,
+            color-mix(in srgb, var(--mm-black-900) 62%, transparent) 0%,
+            color-mix(in srgb, var(--mm-black-900) 34%, transparent) 55%,
+            transparent 100%),
+        linear-gradient(to bottom,
+            transparent 0%,
+            color-mix(in srgb, var(--mm-black-900) 22%, transparent) 30%,
+            color-mix(in srgb, var(--mm-black-900) 46%, transparent) 62%,
+            color-mix(in srgb, var(--mm-black-900) 54%, transparent) 84%,
+            color-mix(in srgb, var(--mm-black-900) 30%, transparent) 100%);
+}
+
+@media (max-width: 899px) {
+    /*
+       A 16:9 frame cropped to a portrait screen keeps the middle of the
+       picture, which here is the chimneypiece, the fire and the portrait —
+       so the crop stays elegant and the copy has more light under it, not
+       less. The pool tightens and deepens to match.
+    */
+    .c-film-hero__scrim::after {
+        background-image:
+            radial-gradient(120% 58% at 50% 86%,
+                color-mix(in srgb, var(--mm-black-900) 70%, transparent) 0%,
+                color-mix(in srgb, var(--mm-black-900) 38%, transparent) 58%,
+                transparent 100%),
+            linear-gradient(to bottom,
+                transparent 0%,
+                color-mix(in srgb, var(--mm-black-900) 26%, transparent) 28%,
+                color-mix(in srgb, var(--mm-black-900) 50%, transparent) 60%,
+                color-mix(in srgb, var(--mm-black-900) 58%, transparent) 86%,
+                color-mix(in srgb, var(--mm-black-900) 34%, transparent) 100%);
+    }
+}
+
+
+/* ===========================================================================
+   2. The breaks
+   ---------------------------------------------------------------------------
+   "Unlike the Privacy page, TERMS may contain subtle visual breaks between
+   major legal chapters", says the brief, and then names the limit in the next
+   line — "One visual break after approximately every 2–3 major sections is
+   sufficient." There are seven clauses and there are two breaks.
+
+   THEY ARE FURNITURE AND THEY CARRY NO LAW. Neither of them prints a clause, a
+   summary or an explanation, and components/legal-break.php has nowhere to put
+   one. See the note at the top of that file.
+   =========================================================================== */
+
+.c-legal-break {
+    /* Both breaks stand in the document column and take its measure, so a
+       clause and the seam above it are the same width and nothing has to be
+       centred against anything. */
+    max-width: var(--pv-measure);
+}
+
+/* -- the seal seam, after clause 03 --------------------------------------- */
+
+/*
+   A hairline with the estate's crest standing in the middle of it. It is
+   components/seam.php's idea — the Main Page puts one between two temperatures
+   — at a document's scale and in the document's ink.
+
+   THE RULES ARE GOLD AND THEY FADE OUT AT THE ENDS. A hairline that runs to
+   both edges of the column and stops dead reads as a horizontal rule between
+   two paragraphs, which is a stronger break than a chapter wants; one that
+   dissolves reads as a seam. It is the same --pv-rule-gold privacy.css joins
+   the hero to the document with.
+*/
+.c-legal-break--seal {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.1rem, 2.4vw, 1.75rem);
+    margin-block: clamp(3rem, 5.5vw, 4.75rem);
+}
+
+.c-legal-break--seal .c-legal-break__rule {
+    flex: 1 1 0;
+    height: 1px;
+    background-image: linear-gradient(to right,
+        transparent, var(--pv-rule-gold) 22%, var(--pv-rule-gold) 78%, transparent);
+}
+
+/*
+   The clause under a seal seam opens on the seam rather than on a rule of its
+   own. privacy.css §5 gives every clause a hairline above it, which is right
+   when the thing above is another clause and wrong when it is already a break:
+   a gold seam and a grey rule a centimetre apart read as a box drawn round
+   nothing. The seam's own bottom margin is --pv-clause-space, so the gap the
+   rule used to sit in is unchanged.
+*/
+.c-legal-break--seal + .c-legal-clause {
+    padding-block-start: 0;
+    border-block-start: 0;
+}
+
+.c-legal-break--seal .c-seal {
+    /* Between the 64px --md and the 32px --sm, because 64 is a mark on a page
+       and this is a mark on a line. --md is the file, so the crest is the
+       engraving rather than the monogram; the size is this page's.
+
+       AND IT IS 56 AND NOT 46, WHICH partials/seal.php DECIDES RATHER THAN
+       TASTE: "the club seal is legible from 48px up; below that its rings
+       close and it reads as a grey disc." 46 was under the line and looked it.
+       56 clears it with room and is still visibly smaller than the mark on a
+       letterhead. */
+    --seal-size: 56px;
+    opacity: 0.88;
+}
+
+/* -- the chapter field, before clause 07 ---------------------------------- */
+
+/*
+   THE ONE BREAK ON THIS PAGE THAT MEANS SOMETHING. content/en/terms.php has
+   said since the day it was written that it holds two documents — the terms,
+   and the impressum, which is the part that is legally required and the part
+   that cannot be finished. This is the seam, and until the page was rebuilt a
+   reader had no way to see it.
+
+   IT IS THE BRIEF'S "MUTED DEEP-GREEN CHAPTER FIELD", in the same --pv-green
+   the index panel is drawn in and under the same gold rule, so the two green
+   objects on this page are recognisably one material. The document around it
+   stays cream: the readable legal surface is not allowed to go dark, and this
+   is a band on the paper rather than a change of paper.
+*/
+.c-legal-break--field {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-block: clamp(3.25rem, 6vw, 5rem) 0;
+    padding: clamp(0.95rem, 1.9vw, 1.25rem) clamp(1.15rem, 2.4vw, 1.6rem);
+    background-color: var(--pv-green);
+    border-block-start: 2px solid var(--pv-gold);
+    color: var(--pv-on-green);
+}
+
+/*
+   The clause under a chapter field opens on the field rather than on a rule of
+   its own: two horizontal lines a centimetre apart are a box, and the field is
+   already the seam.
+*/
+.c-legal-break--field + .c-legal-clause {
+    padding-block-start: clamp(2.25rem, 4vw, 3.25rem);
+    border-block-start: 0;
+}
+
+.c-legal-break__numeral {
+    flex: none;
+    /* The same 2.4rem strip the index's numerals stand in, so the two marks
+       line up when a reader looks from one to the other. */
+    inline-size: 2.4rem;
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--pv-gold);
+}
+
+/*
+   THE LABEL IS SMALL UPPERCASE METADATA AND NOT DISPLAY TYPE, AND THE FIRST
+   VERSION WAS DISPLAY TYPE. This chapter contains exactly one clause and that
+   clause is called Impressum, so the field was setting the word at 2.15rem in
+   the serif directly above the same word at 2.15rem in the serif — which is not
+   a chapter opening a document, it is a heading printed twice, and on the page
+   it read as a mistake in the document rather than as a structure in it.
+
+   Set as a divider label the relationship is the one it actually is: a running
+   head over the section it belongs to, the way a part-title works in a printed
+   act. It is also the treatment the contents already gives the same chapter, so
+   the two marks are recognisably one object seen in two places — and it was the
+   index's version that looked right when both were on screen.
+
+   It is a <p> either way, and legal-break.php says why: an <h2> here would put
+   "Impressum" into the document outline twice in a row, once as furniture and
+   once as the clause it introduces.
+*/
+.c-legal-break__label {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--pv-on-green);
+}
+
+
+/* ===========================================================================
+   3. The chapter, in the contents
+   ---------------------------------------------------------------------------
+   A contents that shows seven flat rows where the document shows two chapters
+   is a contents that disagrees with its own document, which on a legal page is
+   the one thing it may not do. So the index carries the same mark, in the
+   index's own scale — a gold hairline with a numeral and a word on it, not a
+   second green panel inside a green panel.
+
+   IT IS aria-hidden, and legal-index.php says why: the chapter is announced in
+   the document by the field itself, and a contents that reads out "two,
+   impressum, seven, impressum" is a contents nobody can use.
+   =========================================================================== */
+
+.c-legal-index__chapter {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    margin: 1.1rem 0 0.35rem;
+    padding-block-start: 0.95rem;
+    border-block-start: 1px solid var(--pv-rule-gold);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--pv-gold);
+}
+
+.c-legal-index__chapter-n {
+    /* The same 2.4rem strip the clause numbers stand in, so the numeral and
+       the numbers under it share an edge. */
+    flex: none;
+    inline-size: 2.4rem;
+    letter-spacing: 0.12em;
+    color: var(--pv-gold-soft);
+}
+
+/* In the two-column range the panel is a grid of ten short rows, and a chapter
+   mark inside one cell would rule off a column rather than the list. It spans
+   both. */
+@media (min-width: 600px) and (max-width: 1079px) {
+    .c-legal-index__item:has(> .c-legal-index__chapter) {
+        grid-column: 1 / -1;
+    }
+}
+
+
+/* ===========================================================================
+   4. The impressum, and the four things nobody has supplied
+   ---------------------------------------------------------------------------
+   THE OWNER HAS NOT SUPPLIED THE COMPANY'S LEGAL NAME, ITS REGISTRATION NUMBER,
+   ITS REGISTERED ADDRESS, OR THE GOVERNING LAW AND COMPETENT COURT THAT FOLLOW
+   FROM THEM (ARCHITECTURE §21, open question 4). The impressum prints all four
+   gaps rather than filling them with something plausible, and the brief says so
+   three times: "Preserve them exactly as unresolved placeholders. Do not
+   silently remove the TODOs. Do not replace them with guessed data."
+
+   SO EVERY WORD AND EVERY LABEL IS UNTOUCHED. The sentences are the content
+   file's, the word is still t('legal.todo') — TODO, because "to be supplied"
+   reads as a decision and TODO reads as unfinished work — and all four labels
+   are still printed. Nothing below hides one, greys one out, folds three of
+   them behind the first or replaces the word with a softer one. "OWNER ACTION
+   REQUIRED" is not used because it is not a string this project has; the brief
+   allowed that wording only "if that wording already exists in the project".
+
+   WHAT CHANGED IS THAT FOUR BOXES BECAME ONE SCHEDULE. privacy.css §6 draws a
+   notice as a warm panel with a wine edge, which is right when a document has
+   one; this document has four in a row, and four stacked panels with four
+   repeated labels read as four errors rather than as one list of what is
+   missing. Joined edge to edge under a single wine rule, with the label in its
+   own column, they read as what they are: a form with four unfilled fields.
+   =========================================================================== */
+
+/*
+   The join. Each notice keeps its own ground, its own label and its own
+   sentence; what goes is the gap between them and the doubled border, so the
+   run is one panel with four rows.
+*/
+.c-legal-note + .c-legal-note {
+    margin-block-start: 0;
+    border-block-start: 0;
+}
+
+/*
+   The label beside the sentence rather than over it. In a 5.5rem column the
+   four labels line up under one another and the four sentences start on a
+   common left edge — the shape of a schedule, and the shape that stops TODO reading as a
+   heading for a paragraph.
+*/
+@media (min-width: 560px) {
+    .c-legal-note {
+        display: grid;
+        grid-template-columns: 5.5rem minmax(0, 1fr);
+        gap: 0 clamp(1rem, 2vw, 1.5rem);
+        align-items: baseline;
+    }
+
+    .c-legal-note__label {
+        margin: 0;
+    }
+}
+
+
+/* ===========================================================================
+   5. Narrow
+   ---------------------------------------------------------------------------
+   The mobile pass, and there is very little of it, which is the measure of
+   whether the layout above was built the right way round. privacy.css §8 does
+   the document; these are the three objects that file has never drawn.
+   =========================================================================== */
+
+@media (max-width: 599px) {
+    /*
+       Edge to edge, exactly as privacy.css §8 does with the index: a green
+       band with a margin at the sides is a card, and this is a band. The
+       gutter is re-stated rather than inherited because the negative margin
+       has to match the padding privacy.css put on .c-legal.
+    */
+    .c-legal-break--field {
+        margin-inline: calc(-1 * max(var(--gutter), 1.35rem));
+        padding-inline: max(var(--gutter), 1.35rem);
+    }
+
+    .c-legal-break--seal {
+        margin-block: clamp(2.5rem, 9vw, 3.25rem);
+    }
+
+    .c-legal-break--seal .c-seal {
+        /* Still above seal.php's 48px legibility floor. Below it the engraving
+           closes up and the right answer would be the monogram, not a smaller
+           crest — so the seam keeps the mark it has and gives up four pixels
+           rather than eight. */
+        --seal-size: 50px;
+    }
+
+    /* The label is metadata at every width and needs nothing here; the field
+       around it needed the two rules above. */
+}
+
+
+/* ===========================================================================
+   6. Motion
+   ---------------------------------------------------------------------------
+   THE RULE privacy.css §9 SETS AND THIS PAGE KEEPS: NOTHING IN THE DOCUMENT
+   MOVES, AND NOTHING IN IT IS EVER HIDDEN BY ANYTHING.
+
+   The brief is explicit — "Legal content must be immediately available", "The
+   legal content must remain available with JavaScript OFF and
+   prefers-reduced-motion enabled", "No legal content may depend on animation."
+   So nothing this file adds carries [data-reveal], nothing it adds has an
+   opacity for a script to put back, and the two breaks are painted by the
+   stylesheet at full strength the moment the markup arrives.
+
+   THE ONE ENTRANCE ON THE PAGE IS THE HERO'S THREE LINES, and that is
+   privacy.css §9's keyframe, inside its own no-preference query, running on the
+   stylesheet alone because this page fetches no motion library at all. Nothing
+   is added to it here.
+
+   The seal is artwork in a background image and the only thing that could move
+   on it is its opacity; it does not, at any breakpoint, in any state. The brief
+   allows "subtle seal movement" and this page declines it: a mark that breathes
+   in the margin of a legal document is the kind of detail that gets noticed
+   instead of the clause beside it.
+   =========================================================================== */

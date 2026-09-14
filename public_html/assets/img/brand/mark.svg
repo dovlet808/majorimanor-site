@@ -1,0 +1,71 @@
+<!--
+  THE SMALL MARK. Permanent, not a placeholder.
+
+  NOTE ON THIS COMMENT: no two hyphens in a row, anywhere in it. A double
+  hyphen is illegal inside an XML comment, and an SVG that breaks the rule does
+  not warn — it fails to parse, and the mark simply does not appear. Which is
+  awkward here, because the things worth naming below are CSS custom properties
+  and their real names begin with two of them. They are written without.
+
+  MAJORI MANOR IS A TWO-MARK IDENTITY. The crest is the large mark: a fine-line
+  engraving of twenty letters around two rings, four fleur-de-lis and a facade.
+  It is legible from 48px up and it is a grey smudge below that. This is the
+  small mark — the monogram M in the double circle — and it carries every size
+  where the crest stops being readable: the sm size of .c-seal, and the 16 and
+  32 layers of favicon.ico. Neither drawing stands in for the other. See
+  tools/brand/README.md.
+
+  HOW IT IS COLOURED. The file is drawn in currentColor and it is never given a
+  colour here. On the page it is a CSS mask over the ground's `seal-ink`, which
+  §3 of main.css sets exactly as it sets `seal-src` for the crest — green on
+  cream, gold on the dark grounds — so the small mark follows the temperature it
+  stands on for the same reason and by the same mechanism. A mask reads alpha
+  and nothing else, so it does not matter what currentColor resolves to inside
+  an image context; the geometry below is opaque and that is the whole contract.
+  tools/brand/build_assets.py redraws the same geometry to raster for the icons.
+
+  WHY THE WEIGHTS ARE WHAT THEY ARE.
+
+  This started life as the placeholder inside crest.svg, at outer stroke 2 and
+  inner stroke 1.2. Those numbers are invisible at icon size: the viewBox is
+  100 units wide, so at a 16px render one unit is 0.16px and a 2-unit ring
+  lands at 0.32px — a pale grey wash, not a line. Rendered and checked at 16,
+  32 and 64px, the weights below are the lightest that survive 16px:
+
+    - outer ring 5.5 units  = 0.88px at 16px, a solid line
+    - inner ring 2.6 units  = 0.42px at 16px, present as a hairline, and
+                              cleanly separate from the outer ring rather
+                              than merging with it into one band
+    - the M      9 units    = 1.44px at 16px, with its notch still open
+
+  The ring gap is the part that fails first. Outer inner edge sits at 43.25
+  and the inner ring's outer edge at 36.8, so 6.45 units — about 1px at 16px
+  — of clear ground between them. Take either stroke much heavier and the two
+  rings close up and the mark reads as a single fat donut.
+
+  THE M'S NOTCH IS THE OTHER THING THAT FAILS, AND IT FAILS SILENTLY.
+
+  The first cut of this had the chevron dipping from y=39 to y=55 on a 10-unit
+  stroke. At 64px that is a perfectly good M. At 16px the notch is 2.5px deep,
+  antialiasing closes it, and the letter reads as a capital H — which is worse
+  than an unreadable mark, because it is readable and wrong.
+
+  So the V is deep rather than shallow: it drops from y=37 to y=59, 22 units
+  of a 29-unit letter, and the stroke came down from 10 to 9 to leave the
+  notch somewhere to be. Checked at 16px, it reads as an M. If these numbers
+  are ever touched, re-render at 16px and confirm it is still not an H — and
+  change them in tools/brand/build_assets.py in the same edit, because the
+  icons are drawn from the same numbers and nothing checks that the two agree.
+
+  CONVENTIONS:
+    - viewBox="0 0 100 100"    square, so the mark stays circular at any size
+    - currentColor throughout  never a literal colour
+    - no <title>, no id        whatever uses this owns the title and ids
+    - no width/height          the size is set by the caller
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="5.5"/>
+  <circle cx="50" cy="50" r="35.5" fill="none" stroke="currentColor" stroke-width="2.6"/>
+  <path d="M33 66 V37 L50 59 L67 37 V66" fill="none" stroke="currentColor"
+        stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
